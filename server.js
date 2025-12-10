@@ -30,7 +30,7 @@ app.prepare().then(() => {
       res.end('internal server error');
     }
   })
-    .once('error', (err) => {
+    .once('error', err => {
       console.error(err);
       process.exit(1);
     })
