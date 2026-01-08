@@ -38,6 +38,20 @@ export default function SpotifyListeningData({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Helper function to format dates consistently across server and client
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const year = date.getFullYear();
+    return `${month}/${day}/${year}`;
+  };
+
+  // Helper function to format numbers consistently across server and client
+  const formatNumber = (num: number) => {
+    return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  };
+
   const timeRangeLabels = {
     medium_term: 'Last 6 Months',
   };
@@ -184,9 +198,12 @@ export default function SpotifyListeningData({
         </h3>
         <div className="grid gap-4">
           {profile.topArtists.map((artist, index) => (
-            <div
+            <a
               key={artist.id}
-              className="flex items-center space-x-4 p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+              href={artist.external_urls.spotify}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center space-x-4 p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors cursor-pointer"
             >
               <div className="text-lg font-semibold text-gray-500 dark:text-gray-400 w-6">
                 {index + 1}
@@ -208,10 +225,10 @@ export default function SpotifyListeningData({
                   {artist.genres.slice(0, 2).join(', ') || 'No genres listed'}
                 </p>
                 <p className="text-xs text-gray-500 dark:text-gray-500">
-                  {artist.followers.total.toLocaleString()} followers
+                  {formatNumber(artist.followers.total)} followers
                 </p>
               </div>
-            </div>
+            </a>
           ))}
         </div>
       </div>
@@ -223,9 +240,12 @@ export default function SpotifyListeningData({
         </h3>
         <div className="grid gap-3">
           {profile.recentTracks.slice(0, 5).map(item => (
-            <div
+            <a
               key={`${item.track.id}-${item.played_at}`}
-              className="flex items-center space-x-4 p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+              href={item.track.external_urls.spotify}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center space-x-4 p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors cursor-pointer"
             >
               {item.track.album.images[0] && (
                 <Image
@@ -245,9 +265,9 @@ export default function SpotifyListeningData({
                 </p>
               </div>
               <div className="text-xs text-gray-500 dark:text-gray-500">
-                {new Date(item.played_at).toLocaleDateString()}
+                {formatDate(item.played_at)}
               </div>
-            </div>
+            </a>
           ))}
         </div>
       </div>
