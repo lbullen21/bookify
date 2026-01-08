@@ -8,6 +8,7 @@ interface BookRecommendation {
   genre: string;
   reason: string;
   coverUrl?: string;
+  amazonUrl?: string;
   rating: number;
 }
 
@@ -69,6 +70,8 @@ const artistBooks: Record<string, BookRecommendation[]> = {
       description: 'A reclusive Hollywood icon tells her life story to a young journalist.',
       genre: 'Contemporary Fiction',
       reason: 'Like Sabrina\'s music, this book explores themes of love, growth, and finding your authentic voice in the spotlight.',
+      coverUrl: 'https://images-na.ssl-images-amazon.com/images/P/1501161938.01.L.jpg',
+      amazonUrl: 'https://www.amazon.com/Seven-Husbands-Evelyn-Hugo-Novel/dp/1501161938',
       rating: 4.8
     },
     {
@@ -78,6 +81,8 @@ const artistBooks: Record<string, BookRecommendation[]> = {
       description: 'Two rival writers challenge each other to write outside their comfort zones.',
       genre: 'Romance',
       reason: 'Perfect match for Sabrina\'s pop sensibilities - fun, romantic, and emotionally resonant.',
+      coverUrl: 'https://images-na.ssl-images-amazon.com/images/P/1984806734.01.L.jpg',
+      amazonUrl: 'https://www.amazon.com/Beach-Read-Emily-Henry/dp/1984806734',
       rating: 4.6
     },
     {
@@ -87,6 +92,8 @@ const artistBooks: Record<string, BookRecommendation[]> = {
       description: 'A woman discovers a library between life and death with infinite possibilities.',
       genre: 'Contemporary Fiction',
       reason: 'Reflects themes of self-discovery and choosing your path, similar to Sabrina\'s journey in music.',
+      coverUrl: 'https://images-na.ssl-images-amazon.com/images/P/0525559477.01.L.jpg',
+      amazonUrl: 'https://www.amazon.com/Midnight-Library-Novel-Matt-Haig/dp/0525559477',
       rating: 4.7
     },
     {
@@ -96,6 +103,8 @@ const artistBooks: Record<string, BookRecommendation[]> = {
       description: 'A romance between the First Son and the Prince of Wales.',
       genre: 'Romance',
       reason: 'Young, fresh, and full of heart - captures the same energy as Sabrina\'s upbeat pop anthems.',
+      coverUrl: 'https://images-na.ssl-images-amazon.com/images/P/1250316774.01.L.jpg',
+      amazonUrl: 'https://www.amazon.com/Red-White-Royal-Blue-Novel/dp/1250316774',
       rating: 4.5
     },
     {
@@ -105,6 +114,8 @@ const artistBooks: Record<string, BookRecommendation[]> = {
       description: 'A fake dating romance with academic rivals.',
       genre: 'Romance',
       reason: 'Like Sabrina\'s songs about complicated relationships and finding love in unexpected places.',
+      coverUrl: 'https://images-na.ssl-images-amazon.com/images/P/1668001225.01.L.jpg',
+      amazonUrl: 'https://www.amazon.com/Spanish-Love-Deception-Elena-Armas/dp/1668001225',
       rating: 4.4
     }
   ],
@@ -116,6 +127,8 @@ const artistBooks: Record<string, BookRecommendation[]> = {
       description: 'The complex relationship between two Irish teenagers through their years at school and university.',
       genre: 'Literary Fiction',
       reason: 'Like Taylor\'s songwriting, this explores the intricacies of relationships with raw emotional honesty.',
+      coverUrl: 'https://images-na.ssl-images-amazon.com/images/P/1984822179.01.L.jpg',
+      amazonUrl: 'https://www.amazon.com/Normal-People-Novel-Sally-Rooney/dp/1984822179',
       rating: 4.3
     },
     {
@@ -125,6 +138,8 @@ const artistBooks: Record<string, BookRecommendation[]> = {
       description: 'A woman cursed to be forgotten by everyone she meets lives for 300 years.',
       genre: 'Fantasy',
       reason: 'Matches Taylor\'s storytelling prowess and themes of memory, legacy, and enduring love.',
+      coverUrl: 'https://images-na.ssl-images-amazon.com/images/P/0765387565.01.L.jpg',
+      amazonUrl: 'https://www.amazon.com/Invisible-Life-Addie-LaRue/dp/0765387565',
       rating: 4.6
     },
     {
@@ -134,6 +149,8 @@ const artistBooks: Record<string, BookRecommendation[]> = {
       description: 'The classic story of the March sisters coming of age during the Civil War.',
       genre: 'Classic Literature',
       reason: 'Perfect for Taylor\'s nostalgic storytelling style and themes of sisterhood and growing up.',
+      coverUrl: 'https://images-na.ssl-images-amazon.com/images/P/0147514010.01.L.jpg',
+      amazonUrl: 'https://www.amazon.com/Little-Women-Louisa-May-Alcott/dp/0147514010',
       rating: 4.8
     },
     {
@@ -143,6 +160,8 @@ const artistBooks: Record<string, BookRecommendation[]> = {
       description: 'A retelling of the Trojan War through the relationship of Achilles and Patroclus.',
       genre: 'Mythology',
       reason: 'Epic storytelling and emotional depth that matches Taylor\'s lyrical narrative style.',
+      coverUrl: 'https://images-na.ssl-images-amazon.com/images/P/0062060627.01.L.jpg',
+      amazonUrl: 'https://www.amazon.com/Song-Achilles-Madeline-Miller/dp/0062060627',
       rating: 4.7
     },
     {
@@ -152,6 +171,8 @@ const artistBooks: Record<string, BookRecommendation[]> = {
       description: 'A socially awkward woman\'s journey of self-discovery and healing.',
       genre: 'Contemporary Fiction',
       reason: 'Explores themes of personal growth and finding yourself, similar to Taylor\'s introspective albums.',
+      coverUrl: 'https://images-na.ssl-images-amazon.com/images/P/0735220697.01.L.jpg',
+      amazonUrl: 'https://www.amazon.com/Eleanor-Oliphant-Completely-Fine-Novel/dp/0735220697',
       rating: 4.5
     }
   ]
@@ -181,6 +202,8 @@ function generateGenreBasedRecommendations(artist: { id: string; name: string; g
       description: 'Six young magicians compete for a place in an ancient society.',
       genre: Array.from(bookGenres)[0] || 'Fantasy',
       reason: `Based on ${artist.name}'s ${artistGenres.join(', ')} style - magical and atmospheric.`,
+      coverUrl: 'https://images-na.ssl-images-amazon.com/images/P/1250854954.01.L.jpg',
+      amazonUrl: 'https://www.amazon.com/Atlas-Six-Olivie-Blake/dp/1250854954',
       rating: 4.2
     },
     {
@@ -190,6 +213,8 @@ function generateGenreBasedRecommendations(artist: { id: string; name: string; g
       description: 'An artificial friend observes the world with wonder and concern.',
       genre: Array.from(bookGenres)[1] || 'Literary Fiction',
       reason: `Matches the emotional depth found in ${artist.name}'s music.`,
+      coverUrl: 'https://images-na.ssl-images-amazon.com/images/P/0593318188.01.L.jpg',
+      amazonUrl: 'https://www.amazon.com/Klara-Sun-novel-Kazuo-Ishiguro/dp/0593318188',
       rating: 4.4
     },
     {
@@ -199,6 +224,8 @@ function generateGenreBasedRecommendations(artist: { id: string; name: string; g
       description: 'Twin sisters choose different paths in life and identity.',
       genre: Array.from(bookGenres)[2] || 'Contemporary Fiction',
       reason: `Like ${artist.name}'s songs, this explores themes of identity and choosing your own path.`,
+      coverUrl: 'https://images-na.ssl-images-amazon.com/images/P/0525536299.01.L.jpg',
+      amazonUrl: 'https://www.amazon.com/Vanishing-Half-Novel-Brit-Bennett/dp/0525536299',
       rating: 4.6
     },
     {
@@ -208,6 +235,8 @@ function generateGenreBasedRecommendations(artist: { id: string; name: string; g
       description: 'A young woman investigates her cousin\'s mysterious illness.',
       genre: 'Gothic Fiction',
       reason: `The atmospheric quality matches the mood of ${artist.name}'s music.`,
+      coverUrl: 'https://images-na.ssl-images-amazon.com/images/P/0525620788.01.L.jpg',
+      amazonUrl: 'https://www.amazon.com/Mexican-Gothic-Silvia-Moreno-Garcia/dp/0525620788',
       rating: 4.3
     },
     {
@@ -217,6 +246,8 @@ function generateGenreBasedRecommendations(artist: { id: string; name: string; g
       description: 'The story of the Greek goddess Circe and her transformation.',
       genre: 'Mythology',
       reason: `Epic storytelling that complements the narrative quality in ${artist.name}'s work.`,
+      coverUrl: 'https://images-na.ssl-images-amazon.com/images/P/0316556343.01.L.jpg',
+      amazonUrl: 'https://www.amazon.com/Circe-Madeline-Miller/dp/0316556343',
       rating: 4.7
     }
   ];

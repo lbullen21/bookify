@@ -14,6 +14,7 @@ interface BookRecommendation {
   genre: string;
   reason: string;
   coverUrl?: string;
+  amazonUrl?: string;
   rating: number;
 }
 

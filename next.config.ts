@@ -8,6 +8,11 @@ const nextConfig: NextConfig = {
         hostname: 'i.scdn.co',
         pathname: '/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'images-na.ssl-images-amazon.com',
+        pathname: '/**',
+      },
     ],
   },
 };
