@@ -4,6 +4,25 @@ import { useSession } from 'next-auth/react';
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import { SpotifyArtist, RecentlyPlayedTrack } from '@/lib/spotify';
+import BookRecommendations from './BookRecommendations.component';
+
+interface BookRecommendation {
+  id: string;
+  title: string;
+  author: string;
+  description: string;
+  genre: string;
+  reason: string;
+  coverUrl?: string;
+  rating: number;
+}
+
+interface RecommendationResponse {
+  artist: string;
+  genres: string[];
+  recommendations: BookRecommendation[];
+  generated_at: string;
+}
 
 interface ListeningProfile {
   topArtists: SpotifyArtist[];
@@ -37,6 +56,8 @@ export default function SpotifyListeningData({
   const [profile, setProfile] = useState<ListeningProfile | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [recommendations, setRecommendations] = useState<RecommendationResponse | null>(null);
+  const [loadingRecommendations, setLoadingRecommendations] = useState(false);
 
   // Helper function to format dates consistently across server and client
   const formatDate = (dateString: string) => {
@@ -50,6 +71,37 @@ export default function SpotifyListeningData({
   // Helper function to format numbers consistently across server and client
   const formatNumber = (num: number) => {
     return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  };
+
+  // Function to get book recommendations for an artist
+  const getBookRecommendations = async (artist: SpotifyArtist) => {
+    setLoadingRecommendations(true);
+    try {
+      const response = await fetch('/api/recommendations', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ artist }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch recommendations');
+      }
+
+      const data: RecommendationResponse = await response.json();
+      setRecommendations(data);
+    } catch (error) {
+      console.error('Error fetching recommendations:', error);
+      // You could add error handling here
+    } finally {
+      setLoadingRecommendations(false);
+    }
+  };
+
+  const handleArtistClick = (e: React.MouseEvent, artist: SpotifyArtist) => {
+    e.preventDefault();
+    getBookRecommendations(artist);
   };
 
   const timeRangeLabels = {
@@ -193,17 +245,20 @@ export default function SpotifyListeningData({
 
       {/* Top Artists */}
       <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-xl border border-gray-200 dark:border-gray-700">
-        <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-6">
-          🎤 Your Top Artists
-        </h3>
+        <div className="flex items-center justify-between mb-6">
+          <h3 className="text-xl font-bold text-gray-900 dark:text-white">
+            🎤 Your Top Artists
+          </h3>
+          <div className="text-sm text-purple-600 dark:text-purple-400 font-medium">
+            📚 Click for book recommendations
+          </div>
+        </div>
         <div className="grid gap-4">
           {profile.topArtists.map((artist, index) => (
-            <a
+            <button
               key={artist.id}
-              href={artist.external_urls.spotify}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center space-x-4 p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors cursor-pointer"
+              onClick={(e) => handleArtistClick(e, artist)}
+              className="flex items-center space-x-4 p-3 rounded-lg hover:bg-purple-50 dark:hover:bg-purple-900/20 transition-colors cursor-pointer text-left border border-transparent hover:border-purple-200 dark:hover:border-purple-700"
             >
               <div className="text-lg font-semibold text-gray-500 dark:text-gray-400 w-6">
                 {index + 1}
@@ -228,7 +283,10 @@ export default function SpotifyListeningData({
                   {formatNumber(artist.followers.total)} followers
                 </p>
               </div>
-            </a>
+              <div className="text-purple-600 dark:text-purple-400 text-sm font-medium">
+                📚 Get Book Recs →
+              </div>
+            </button>
           ))}
         </div>
       </div>
@@ -271,6 +329,29 @@ export default function SpotifyListeningData({
           ))}
         </div>
       </div>
+
+      {/* Loading overlay for recommendations */}
+      {loadingRecommendations && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-2xl">
+            <div className="flex items-center space-x-4">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
+              <span className="text-lg font-medium text-gray-900 dark:text-white">
+                Finding perfect books for you...
+              </span>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Book Recommendations Modal */}
+      {recommendations && (
+        <BookRecommendations
+          artistName={recommendations.artist}
+          recommendations={recommendations.recommendations}
+          onClose={() => setRecommendations(null)}
+        />
+      )}
     </div>
   );
 }
