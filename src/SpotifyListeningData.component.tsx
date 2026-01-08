@@ -3,14 +3,9 @@
 import { useSession } from 'next-auth/react';
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
-import {
-  SpotifyTrack,
-  SpotifyArtist,
-  RecentlyPlayedTrack,
-} from '@/lib/spotify';
+import { SpotifyArtist, RecentlyPlayedTrack } from '@/lib/spotify';
 
 interface ListeningProfile {
-  topTracks: SpotifyTrack[];
   topArtists: SpotifyArtist[];
   recentTracks: RecentlyPlayedTrack[];
   analysis: {
@@ -44,9 +39,7 @@ export default function SpotifyListeningData({
   const [error, setError] = useState<string | null>(null);
 
   const timeRangeLabels = {
-    short_term: 'Last 4 Weeks',
     medium_term: 'Last 6 Months',
-    long_term: 'All Time',
   };
 
   const fetchListeningProfile = async (range: string) => {
@@ -119,6 +112,7 @@ export default function SpotifyListeningData({
   if (!session || !profile) {
     return null;
   }
+  console.log('Listening Profile:', profile);
 
   return (
     <div className="space-y-8">
@@ -216,51 +210,6 @@ export default function SpotifyListeningData({
                 <p className="text-xs text-gray-500 dark:text-gray-500">
                   {artist.followers.total.toLocaleString()} followers
                 </p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Top Tracks */}
-      <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-xl border border-gray-200 dark:border-gray-700">
-        <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-6">
-          🎧 Your Top Tracks
-        </h3>
-        <div className="grid gap-4">
-          {profile.topTracks.map((track, index) => (
-            <div
-              key={track.id}
-              className="flex items-center space-x-4 p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-            >
-              <div className="text-lg font-semibold text-gray-500 dark:text-gray-400 w-6">
-                {index + 1}
-              </div>
-              {track.album.images[0] && (
-                <Image
-                  src={track.album.images[0].url}
-                  alt={track.album.name}
-                  width={64}
-                  height={64}
-                  className="rounded object-cover"
-                />
-              )}
-              <div className="flex-1">
-                <h4 className="font-semibold text-gray-900 dark:text-white">
-                  {track.name}
-                </h4>
-                <p className="text-sm text-gray-600 dark:text-gray-400">
-                  {track.artists.map(artist => artist.name).join(', ')}
-                </p>
-                <p className="text-xs text-gray-500 dark:text-gray-500">
-                  {track.album.name}
-                </p>
-              </div>
-              <div className="text-sm text-gray-500 dark:text-gray-400">
-                {Math.floor(track.duration_ms / 60000)}:
-                {((track.duration_ms % 60000) / 1000)
-                  .toFixed(0)
-                  .padStart(2, '0')}
               </div>
             </div>
           ))}

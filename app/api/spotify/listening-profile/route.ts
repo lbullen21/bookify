@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
-import { createSpotifyAPI, analyzeListeningPatterns } from '@/lib/spotify';
+import { createSpotifyAPI } from '@/lib/spotify';
 
 export async function GET(request: NextRequest) {
   const session = await getServerSession(authOptions);
@@ -26,33 +26,16 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Fetch user's top tracks and artists
-    const [topTracks, topArtists, recentlyPlayed] = await Promise.all([
-      spotifyAPI.getTopTracks(timeRange, 50),
+    // Fetch user's top artists and recently played
+    const [topArtists, recentlyPlayed] = await Promise.all([
       spotifyAPI.getTopArtists(timeRange, 20),
       spotifyAPI.getRecentlyPlayed(50),
     ]);
 
-    // Only get audio features if we have tracks
-    let audioFeatures = [];
-    let analysis = null;
-
-    if (topTracks && topTracks.length > 0) {
-      try {
-        const trackIds = topTracks.slice(0, 20).map(track => track.id);
-        audioFeatures = await spotifyAPI.getAudioFeatures(trackIds);
-        // Only analyze if we have audio features
-        if (audioFeatures && audioFeatures.length > 0) {
-          analysis = analyzeListeningPatterns(topTracks, audioFeatures);
-        }
-      } catch (audioError) {
-        console.error('Error fetching audio features:', audioError);
-        // Continue without audio features
-      }
-    }
+    // No audio features analysis needed since we're not showing track analysis
+    const analysis = null;
 
     const profile = {
-      topTracks: topTracks?.slice(0, 10) || [],
       topArtists: topArtists?.slice(0, 10) || [],
       recentTracks: recentlyPlayed?.slice(0, 10) || [],
       analysis,
