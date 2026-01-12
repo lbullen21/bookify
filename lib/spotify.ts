@@ -81,7 +81,9 @@ class SpotifyAPI {
     });
 
     if (!response.ok) {
-      throw new Error(`Spotify API error: ${response.status}`);
+      const errorText = await response.text();
+      console.error(`Spotify API error ${response.status} for ${endpoint}:`, errorText);
+      throw new Error(`Spotify API error: ${response.status} - ${errorText}`);
     }
 
     return response.json();
@@ -150,8 +152,16 @@ class SpotifyAPI {
 // Helper function to create SpotifyAPI instance from session
 export function createSpotifyAPI(session: Session): SpotifyAPI | null {
   if (!session.accessToken) {
+    console.error('No access token in session');
     return null;
   }
+  
+  // Check if token is expired
+  if (session.accessTokenExpires && Date.now() > session.accessTokenExpires * 1000) {
+    console.error('Access token has expired');
+    return null;
+  }
+  
   return new SpotifyAPI(session.accessToken);
 }
 

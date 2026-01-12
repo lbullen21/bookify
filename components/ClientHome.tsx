@@ -3,13 +3,11 @@
 import { useEffect, useState } from 'react';
 import AuthenticatedContent from '@/src/AuthenticatedContent.component';
 
-export default function Home() {
+export default function ClientHome() {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    // Use timeout to avoid cascading renders
-    const timer = setTimeout(() => setMounted(true), 0);
-    return () => clearTimeout(timer);
+    setMounted(true);
   }, []);
 
   if (!mounted) {
@@ -41,6 +39,7 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-green-50 dark:from-gray-900 dark:via-black dark:to-gray-800">
       <main className="container mx-auto px-6 py-16">
+        {/* Header */}
         <header className="text-center mb-16">
           <h1 className="text-6xl font-bold text-gray-900 dark:text-white mb-4">
             📚 Bookify
@@ -50,8 +49,10 @@ export default function Home() {
           </p>
         </header>
 
+        {/* Authenticated Content */}
         <AuthenticatedContent />
 
+        {/* Footer */}
         <footer className="text-center mt-20 text-gray-500 dark:text-gray-400">
           <p>
             Ready to discover your next favorite book? Start by connecting your

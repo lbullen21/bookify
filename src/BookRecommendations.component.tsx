@@ -21,12 +21,14 @@ interface BookRecommendationsProps {
   onClose: () => void;
 }
 
-export default function BookRecommendations({ 
-  artistName, 
-  recommendations, 
-  onClose 
+export default function BookRecommendations({
+  artistName,
+  recommendations,
+  onClose,
 }: BookRecommendationsProps) {
-  const [selectedBook, setSelectedBook] = useState<BookRecommendation | null>(null);
+  const [selectedBook, setSelectedBook] = useState<BookRecommendation | null>(
+    null
+  );
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
@@ -37,7 +39,8 @@ export default function BookRecommendations({
             <div>
               <h2 className="text-2xl font-bold">📚 Book Recommendations</h2>
               <p className="text-purple-100 mt-1">
-                Based on your love for <span className="font-semibold">{artistName}</span>
+                Based on your love for{' '}
+                <span className="font-semibold">{artistName}</span>
               </p>
             </div>
             <button
@@ -125,17 +128,26 @@ export default function BookRecommendations({
                 {/* Why this matches button */}
                 <div className="border-t border-gray-200 dark:border-gray-700 p-4">
                   <button
-                    onClick={() => setSelectedBook(selectedBook?.id === book.id ? null : book)}
+                    onClick={() =>
+                      setSelectedBook(
+                        selectedBook?.id === book.id ? null : book
+                      )
+                    }
                     className="w-full text-left flex items-center justify-between text-sm text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 font-medium"
                   >
                     <span>🎵 Why this matches your music taste</span>
-                    <svg 
-                      className={`w-4 h-4 transition-transform ${selectedBook?.id === book.id ? 'rotate-180' : ''}`} 
-                      fill="none" 
-                      stroke="currentColor" 
+                    <svg
+                      className={`w-4 h-4 transition-transform ${selectedBook?.id === book.id ? 'rotate-180' : ''}`}
+                      fill="none"
+                      stroke="currentColor"
                       viewBox="0 0 24 24"
                     >
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M19 9l-7 7-7-7"
+                      />
                     </svg>
                   </button>
 
@@ -159,7 +171,8 @@ export default function BookRecommendations({
         <div className="border-t border-gray-200 dark:border-gray-700 p-4 bg-gray-50 dark:bg-gray-800/50">
           <div className="text-center">
             <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
-              📚 Click any book cover to buy on Amazon • 🎵 Click &ldquo;Why this matches&rdquo; to see the connection to your music
+              📚 Click any book cover to buy on Amazon • 🎵 Click &ldquo;Why
+              this matches&rdquo; to see the connection to your music
             </p>
             <button
               onClick={onClose}

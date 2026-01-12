@@ -13,6 +13,16 @@ const nextConfig: NextConfig = {
         hostname: 'images-na.ssl-images-amazon.com',
         pathname: '/**',
       },
+      {
+        protocol: 'http',
+        hostname: 'books.google.com',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'books.google.com',
+        pathname: '/**',
+      },
     ],
   },
 };

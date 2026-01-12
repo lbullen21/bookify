@@ -57,7 +57,8 @@ export default function SpotifyListeningData({
   const [profile, setProfile] = useState<ListeningProfile | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [recommendations, setRecommendations] = useState<RecommendationResponse | null>(null);
+  const [recommendations, setRecommendations] =
+    useState<RecommendationResponse | null>(null);
   const [loadingRecommendations, setLoadingRecommendations] = useState(false);
 
   // Helper function to format dates consistently across server and client
@@ -258,7 +259,7 @@ export default function SpotifyListeningData({
           {profile.topArtists.map((artist, index) => (
             <button
               key={artist.id}
-              onClick={(e) => handleArtistClick(e, artist)}
+              onClick={e => handleArtistClick(e, artist)}
               className="flex items-center space-x-4 p-3 rounded-lg hover:bg-purple-50 dark:hover:bg-purple-900/20 transition-colors cursor-pointer text-left border border-transparent hover:border-purple-200 dark:hover:border-purple-700"
             >
               <div className="text-lg font-semibold text-gray-500 dark:text-gray-400 w-6">

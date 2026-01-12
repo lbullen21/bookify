@@ -12,247 +12,168 @@ interface BookRecommendation {
   rating: number;
 }
 
-// Music genre to book genre mapping
-const genreMapping: Record<string, string[]> = {
-  // Pop music genres
-  'pop': ['contemporary fiction', 'romance', 'young adult', 'chick lit'],
-  'electropop': ['science fiction', 'dystopian', 'contemporary fiction'],
-  'dance pop': ['romance', 'contemporary fiction', 'young adult'],
-  'teen pop': ['young adult', 'coming of age', 'romance'],
-  
-  // Rock genres
-  'rock': ['literary fiction', 'adventure', 'thriller'],
-  'indie rock': ['literary fiction', 'contemporary fiction', 'indie literature'],
-  'alternative rock': ['dystopian', 'literary fiction', 'dark fiction'],
-  'classic rock': ['historical fiction', 'adventure', 'biography'],
-  
-  // Electronic genres
-  'electronic': ['science fiction', 'cyberpunk', 'futuristic'],
-  'ambient': ['philosophy', 'meditation', 'literary fiction'],
-  'techno': ['science fiction', 'thriller', 'cyberpunk'],
-  
-  // Hip-hop/R&B
-  'hip hop': ['urban fiction', 'social commentary', 'biography'],
-  'r&b': ['romance', 'contemporary fiction', 'drama'],
-  'rap': ['urban fiction', 'social issues', 'biography'],
-  
-  // Folk/Acoustic
-  'folk': ['historical fiction', 'literary fiction', 'nature writing'],
-  'acoustic': ['poetry', 'literary fiction', 'memoir'],
-  'singer-songwriter': ['memoir', 'poetry', 'literary fiction'],
-  
-  // Jazz/Blues
-  'jazz': ['historical fiction', 'biography', 'literary fiction'],
-  'blues': ['historical fiction', 'drama', 'southern fiction'],
-  
-  // Classical
-  'classical': ['philosophy', 'historical fiction', 'literary classics'],
-  
-  // Country
-  'country': ['southern fiction', 'family saga', 'rural fiction'],
-  
-  // Metal
-  'metal': ['fantasy', 'dark fantasy', 'horror'],
-  'heavy metal': ['fantasy', 'horror', 'mythology'],
-  
-  // Alternative/Indie
-  'indie': ['indie literature', 'contemporary fiction', 'literary fiction'],
-  'alternative': ['literary fiction', 'experimental fiction', 'contemporary'],
-};
+interface GoogleBooksItem {
+  id: string;
+  volumeInfo: {
+    title: string;
+    authors?: string[];
+    description?: string;
+    categories?: string[];
+    averageRating?: number;
+    ratingsCount?: number;
+    imageLinks?: {
+      thumbnail: string;
+      smallThumbnail: string;
+    };
+    industryIdentifiers?: {
+      type: string;
+      identifier: string;
+    }[];
+  };
+}
 
-// Artist-specific book recommendations (curated examples)
-const artistBooks: Record<string, BookRecommendation[]> = {
-  'sabrina carpenter': [
-    {
-      id: '1',
-      title: 'The Seven Husbands of Evelyn Hugo',
-      author: 'Taylor Jenkins Reid',
-      description: 'A reclusive Hollywood icon tells her life story to a young journalist.',
-      genre: 'Contemporary Fiction',
-      reason: 'Like Sabrina\'s music, this book explores themes of love, growth, and finding your authentic voice in the spotlight.',
-      coverUrl: 'https://images-na.ssl-images-amazon.com/images/P/1501161938.01.L.jpg',
-      amazonUrl: 'https://www.amazon.com/Seven-Husbands-Evelyn-Hugo-Novel/dp/1501161938',
-      rating: 4.8
-    },
-    {
-      id: '2',
-      title: 'Beach Read',
-      author: 'Emily Henry',
-      description: 'Two rival writers challenge each other to write outside their comfort zones.',
-      genre: 'Romance',
-      reason: 'Perfect match for Sabrina\'s pop sensibilities - fun, romantic, and emotionally resonant.',
-      coverUrl: 'https://images-na.ssl-images-amazon.com/images/P/1984806734.01.L.jpg',
-      amazonUrl: 'https://www.amazon.com/Beach-Read-Emily-Henry/dp/1984806734',
-      rating: 4.6
-    },
-    {
-      id: '3',
-      title: 'The Midnight Library',
-      author: 'Matt Haig',
-      description: 'A woman discovers a library between life and death with infinite possibilities.',
-      genre: 'Contemporary Fiction',
-      reason: 'Reflects themes of self-discovery and choosing your path, similar to Sabrina\'s journey in music.',
-      coverUrl: 'https://images-na.ssl-images-amazon.com/images/P/0525559477.01.L.jpg',
-      amazonUrl: 'https://www.amazon.com/Midnight-Library-Novel-Matt-Haig/dp/0525559477',
-      rating: 4.7
-    },
-    {
-      id: '4',
-      title: 'Red, White & Royal Blue',
-      author: 'Casey McQuiston',
-      description: 'A romance between the First Son and the Prince of Wales.',
-      genre: 'Romance',
-      reason: 'Young, fresh, and full of heart - captures the same energy as Sabrina\'s upbeat pop anthems.',
-      coverUrl: 'https://images-na.ssl-images-amazon.com/images/P/1250316774.01.L.jpg',
-      amazonUrl: 'https://www.amazon.com/Red-White-Royal-Blue-Novel/dp/1250316774',
-      rating: 4.5
-    },
-    {
-      id: '5',
-      title: 'The Spanish Love Deception',
-      author: 'Elena Armas',
-      description: 'A fake dating romance with academic rivals.',
-      genre: 'Romance',
-      reason: 'Like Sabrina\'s songs about complicated relationships and finding love in unexpected places.',
-      coverUrl: 'https://images-na.ssl-images-amazon.com/images/P/1668001225.01.L.jpg',
-      amazonUrl: 'https://www.amazon.com/Spanish-Love-Deception-Elena-Armas/dp/1668001225',
-      rating: 4.4
-    }
-  ],
-  'taylor swift': [
-    {
-      id: '6',
-      title: 'Normal People',
-      author: 'Sally Rooney',
-      description: 'The complex relationship between two Irish teenagers through their years at school and university.',
-      genre: 'Literary Fiction',
-      reason: 'Like Taylor\'s songwriting, this explores the intricacies of relationships with raw emotional honesty.',
-      coverUrl: 'https://images-na.ssl-images-amazon.com/images/P/1984822179.01.L.jpg',
-      amazonUrl: 'https://www.amazon.com/Normal-People-Novel-Sally-Rooney/dp/1984822179',
-      rating: 4.3
-    },
-    {
-      id: '7',
-      title: 'The Invisible Life of Addie LaRue',
-      author: 'V.E. Schwab',
-      description: 'A woman cursed to be forgotten by everyone she meets lives for 300 years.',
-      genre: 'Fantasy',
-      reason: 'Matches Taylor\'s storytelling prowess and themes of memory, legacy, and enduring love.',
-      coverUrl: 'https://images-na.ssl-images-amazon.com/images/P/0765387565.01.L.jpg',
-      amazonUrl: 'https://www.amazon.com/Invisible-Life-Addie-LaRue/dp/0765387565',
-      rating: 4.6
-    },
-    {
-      id: '8',
-      title: 'Little Women',
-      author: 'Louisa May Alcott',
-      description: 'The classic story of the March sisters coming of age during the Civil War.',
-      genre: 'Classic Literature',
-      reason: 'Perfect for Taylor\'s nostalgic storytelling style and themes of sisterhood and growing up.',
-      coverUrl: 'https://images-na.ssl-images-amazon.com/images/P/0147514010.01.L.jpg',
-      amazonUrl: 'https://www.amazon.com/Little-Women-Louisa-May-Alcott/dp/0147514010',
-      rating: 4.8
-    },
-    {
-      id: '9',
-      title: 'The Song of Achilles',
-      author: 'Madeline Miller',
-      description: 'A retelling of the Trojan War through the relationship of Achilles and Patroclus.',
-      genre: 'Mythology',
-      reason: 'Epic storytelling and emotional depth that matches Taylor\'s lyrical narrative style.',
-      coverUrl: 'https://images-na.ssl-images-amazon.com/images/P/0062060627.01.L.jpg',
-      amazonUrl: 'https://www.amazon.com/Song-Achilles-Madeline-Miller/dp/0062060627',
-      rating: 4.7
-    },
-    {
-      id: '10',
-      title: 'Eleanor Oliphant Is Completely Fine',
-      author: 'Gail Honeyman',
-      description: 'A socially awkward woman\'s journey of self-discovery and healing.',
-      genre: 'Contemporary Fiction',
-      reason: 'Explores themes of personal growth and finding yourself, similar to Taylor\'s introspective albums.',
-      coverUrl: 'https://images-na.ssl-images-amazon.com/images/P/0735220697.01.L.jpg',
-      amazonUrl: 'https://www.amazon.com/Eleanor-Oliphant-Completely-Fine-Novel/dp/0735220697',
-      rating: 4.5
-    }
-  ]
-};
+// LLM-powered recommendation system
+async function generateLLMBookQueries(artist: { name: string; genres?: string[] }): Promise<string[]> {
+  const prompt = `As a literary expert, analyze this musical artist and suggest book search terms:
+    
+Artist: ${artist.name}
+Genres: ${artist.genres?.join(', ') || 'Unknown'}
 
-// Generate recommendations based on artist genres
-function generateGenreBasedRecommendations(artist: { id: string; name: string; genres?: string[] }): BookRecommendation[] {
+Generate 3-5 specific book search queries that would find books matching this artist's aesthetic.
+Return only the search queries, one per line.`;
+
+  try {
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
+      },
+      body: JSON.stringify({
+        model: 'gpt-4o-mini',
+        messages: [{ role: 'user', content: prompt }],
+        max_tokens: 200,
+        temperature: 0.7,
+      }),
+    });
+
+    if (!response.ok) {
+      console.error('OpenAI API error:', response.status);
+      return getFallbackQueries(artist);
+    }
+
+    const data = await response.json();
+    const content = data.choices[0]?.message?.content;
+    
+    if (content) {
+      return content.split('\n')
+        .filter((line: string) => line.trim())
+        .slice(0, 5);
+    }
+    
+    return getFallbackQueries(artist);
+  } catch (error) {
+    console.error('Error calling OpenAI:', error);
+    return getFallbackQueries(artist);
+  }
+}
+
+function getFallbackQueries(artist: { name: string; genres?: string[] }): string[] {
   const artistGenres = artist.genres?.slice(0, 3) || [];
-  const bookGenres = new Set<string>();
+  const queries: string[] = [];
   
-  // Map music genres to book genres
   artistGenres.forEach((genre: string) => {
     const lowerGenre = genre.toLowerCase();
-    Object.keys(genreMapping).forEach(musicGenre => {
-      if (lowerGenre.includes(musicGenre)) {
-        genreMapping[musicGenre].forEach(bookGenre => bookGenres.add(bookGenre));
-      }
-    });
-  });
-
-  // Create generic recommendations based on genres
-  const recommendations: BookRecommendation[] = [
-    {
-      id: `${artist.id}-1`,
-      title: 'The Atlas Six',
-      author: 'Olivie Blake',
-      description: 'Six young magicians compete for a place in an ancient society.',
-      genre: Array.from(bookGenres)[0] || 'Fantasy',
-      reason: `Based on ${artist.name}'s ${artistGenres.join(', ')} style - magical and atmospheric.`,
-      coverUrl: 'https://images-na.ssl-images-amazon.com/images/P/1250854954.01.L.jpg',
-      amazonUrl: 'https://www.amazon.com/Atlas-Six-Olivie-Blake/dp/1250854954',
-      rating: 4.2
-    },
-    {
-      id: `${artist.id}-2`,
-      title: 'Klara and the Sun',
-      author: 'Kazuo Ishiguro',
-      description: 'An artificial friend observes the world with wonder and concern.',
-      genre: Array.from(bookGenres)[1] || 'Literary Fiction',
-      reason: `Matches the emotional depth found in ${artist.name}'s music.`,
-      coverUrl: 'https://images-na.ssl-images-amazon.com/images/P/0593318188.01.L.jpg',
-      amazonUrl: 'https://www.amazon.com/Klara-Sun-novel-Kazuo-Ishiguro/dp/0593318188',
-      rating: 4.4
-    },
-    {
-      id: `${artist.id}-3`,
-      title: 'The Vanishing Half',
-      author: 'Brit Bennett',
-      description: 'Twin sisters choose different paths in life and identity.',
-      genre: Array.from(bookGenres)[2] || 'Contemporary Fiction',
-      reason: `Like ${artist.name}'s songs, this explores themes of identity and choosing your own path.`,
-      coverUrl: 'https://images-na.ssl-images-amazon.com/images/P/0525536299.01.L.jpg',
-      amazonUrl: 'https://www.amazon.com/Vanishing-Half-Novel-Brit-Bennett/dp/0525536299',
-      rating: 4.6
-    },
-    {
-      id: `${artist.id}-4`,
-      title: 'Mexican Gothic',
-      author: 'Silvia Moreno-Garcia',
-      description: 'A young woman investigates her cousin\'s mysterious illness.',
-      genre: 'Gothic Fiction',
-      reason: `The atmospheric quality matches the mood of ${artist.name}'s music.`,
-      coverUrl: 'https://images-na.ssl-images-amazon.com/images/P/0525620788.01.L.jpg',
-      amazonUrl: 'https://www.amazon.com/Mexican-Gothic-Silvia-Moreno-Garcia/dp/0525620788',
-      rating: 4.3
-    },
-    {
-      id: `${artist.id}-5`,
-      title: 'Circe',
-      author: 'Madeline Miller',
-      description: 'The story of the Greek goddess Circe and her transformation.',
-      genre: 'Mythology',
-      reason: `Epic storytelling that complements the narrative quality in ${artist.name}'s work.`,
-      coverUrl: 'https://images-na.ssl-images-amazon.com/images/P/0316556343.01.L.jpg',
-      amazonUrl: 'https://www.amazon.com/Circe-Madeline-Miller/dp/0316556343',
-      rating: 4.7
+    
+    if (lowerGenre.includes('pop')) {
+      queries.push('contemporary fiction bestseller');
+    } else if (lowerGenre.includes('rock')) {
+      queries.push('literary fiction award');
+    } else if (lowerGenre.includes('electronic')) {
+      queries.push('science fiction cyberpunk');
+    } else {
+      queries.push('bestseller fiction');
     }
-  ];
+  });
+  
+  if (queries.length === 0) {
+    queries.push('contemporary fiction popular');
+  }
+  
+  return [...new Set(queries)];
+}
 
-  return recommendations;
+async function generateLLMBookReason(artist: { name: string; genres?: string[] }, book: BookRecommendation): Promise<string> {
+  const prompt = `Explain why fans of ${artist.name} would enjoy this book:
+    
+Book: "${book.title}" by ${book.author}
+Genre: ${book.genre}
+
+Write a personalized 1-2 sentence explanation connecting the artist's style to this book.`;
+
+  try {
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
+      },
+      body: JSON.stringify({
+        model: 'gpt-4o-mini',
+        messages: [{ role: 'user', content: prompt }],
+        max_tokens: 100,
+        temperature: 0.7,
+      }),
+    });
+
+    if (!response.ok) {
+      return `Based on ${artist.name}'s style, this book offers compelling storytelling.`;
+    }
+
+    const data = await response.json();
+    return data.choices[0]?.message?.content?.trim() || `Perfect for ${artist.name} fans.`;
+  } catch (error) {
+    return `Based on ${artist.name}'s style, this book offers compelling storytelling.`;
+  }
+}
+
+async function fetchBooksFromGoogle(query: string, maxResults: number = 5): Promise<BookRecommendation[]> {
+  try {
+    const encodedQuery = encodeURIComponent(query);
+    const response = await fetch(
+      `https://www.googleapis.com/books/v1/volumes?q=${encodedQuery}&maxResults=${maxResults}&orderBy=relevance&printType=books&langRestrict=en`
+    );
+    
+    if (!response.ok) {
+      return [];
+    }
+    
+    const data = await response.json();
+    
+    if (!data.items) {
+      return [];
+    }
+    
+    return data.items.map((item: GoogleBooksItem) => {
+      const book = item.volumeInfo;
+      const isbn = book.industryIdentifiers?.find(id => id.type === 'ISBN_13' || id.type === 'ISBN_10')?.identifier;
+      
+      return {
+        id: `google-${item.id}`,
+        title: book.title,
+        author: book.authors ? book.authors[0] : 'Unknown Author',
+        description: book.description ? book.description.slice(0, 200) + '...' : 'A great read.',
+        genre: book.categories ? book.categories[0] : 'Fiction',
+        reason: '',
+        coverUrl: book.imageLinks?.thumbnail || '',
+        amazonUrl: isbn ? `https://www.amazon.com/s?k=${isbn}` : `https://www.amazon.com/s?k=${encodeURIComponent(book.title)}`,
+        rating: book.averageRating || 4.0
+      };
+    });
+  } catch (error) {
+    console.error('Error fetching from Google Books:', error);
+    return [];
+  }
 }
 
 export async function POST(request: NextRequest) {
@@ -263,26 +184,40 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Artist data is required' }, { status: 400 });
     }
 
-    // Check if we have curated recommendations for this artist
-    const artistName = artist.name.toLowerCase();
-    let recommendations: BookRecommendation[] = [];
-    
-    if (artistBooks[artistName]) {
-      recommendations = artistBooks[artistName];
-    } else {
-      // Generate recommendations based on genres
-      recommendations = generateGenreBasedRecommendations(artist);
+    const searchQueries = await generateLLMBookQueries(artist);
+    const recommendations: BookRecommendation[] = [];
+    const usedBooks = new Set<string>();
+
+    for (const query of searchQueries.slice(0, 3)) {
+      try {
+        const googleBooks = await fetchBooksFromGoogle(query, 3);
+        
+        for (const book of googleBooks) {
+          if (!usedBooks.has(book.title.toLowerCase()) && recommendations.length < 5) {
+            book.reason = await generateLLMBookReason(artist, book);
+            recommendations.push(book);
+            usedBooks.add(book.title.toLowerCase());
+          }
+        }
+        
+        if (recommendations.length >= 5) break;
+        
+      } catch {
+        console.error(`Error processing query:`);
+      }
     }
 
     return NextResponse.json({
       artist: artist.name,
       genres: artist.genres || [],
       recommendations,
-      generated_at: new Date().toISOString()
+      generated_at: new Date().toISOString(),
+      personalized: true,
+      llm_powered: true
     });
 
   } catch (error) {
-    console.error('Error generating book recommendations:', error);
+    console.error('Error generating recommendations:', error);
     return NextResponse.json(
       { error: 'Failed to generate recommendations' },
       { status: 500 }
