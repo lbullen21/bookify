@@ -19,7 +19,8 @@ export default function ClientHome() {
               📚 Bookify
             </h1>
             <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-              Discover your next great read based on your Spotify listening habits
+              Discover your next great read based on your Spotify listening
+              habits
             </p>
           </header>
           <div className="max-w-4xl mx-auto text-center mb-16">

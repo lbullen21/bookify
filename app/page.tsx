@@ -1,64 +1,62 @@
-'use client';
+import { Suspense } from 'react';
+import ClientWrapper from '@/components/ClientWrapper';
 
-import { useEffect, useState } from 'react';
-import AuthenticatedContent from '@/src/AuthenticatedContent.component';
-
-export default function Home() {
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    // Use timeout to avoid cascading renders
-    const timer = setTimeout(() => setMounted(true), 0);
-    return () => clearTimeout(timer);
-  }, []);
-
-  if (!mounted) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-green-50 dark:from-gray-900 dark:via-black dark:to-gray-800">
-        <main className="container mx-auto px-6 py-16">
-          <header className="text-center mb-16">
-            <h1 className="text-6xl font-bold text-gray-900 dark:text-white mb-4">
-              📚 Bookify
-            </h1>
-            <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-              Discover your next great read based on your Spotify listening habits
-            </p>
-          </header>
-          <div className="max-w-4xl mx-auto text-center mb-16">
-            <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl p-12 shadow-xl border border-gray-200/50 dark:border-gray-700/50">
-              <div className="animate-pulse">
-                <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-1/2 mx-auto mb-6"></div>
-                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4 mx-auto mb-4"></div>
-                <div className="h-12 bg-gray-200 dark:bg-gray-700 rounded w-48 mx-auto"></div>
-              </div>
-            </div>
-          </div>
-        </main>
-      </div>
-    );
-  }
-
+function LoadingSkeleton() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-green-50 dark:from-gray-900 dark:via-black dark:to-gray-800">
-      <main className="container mx-auto px-6 py-16">
-        <header className="text-center mb-16">
-          <h1 className="text-6xl font-bold text-gray-900 dark:text-white mb-4">
+    <div style={{ 
+      minHeight: '100vh', 
+      background: 'linear-gradient(to bottom right, #faf5ff, #ffffff, #f0fdf4)'
+    }}>
+      <main style={{ 
+        maxWidth: '1280px', 
+        margin: '0 auto', 
+        padding: '4rem 1.5rem' 
+      }}>
+        <header style={{ textAlign: 'center', marginBottom: '4rem' }}>
+          <h1 style={{ 
+            fontSize: '3.75rem', 
+            fontWeight: 'bold', 
+            color: '#111827', 
+            marginBottom: '1rem' 
+          }}>
             📚 Bookify
           </h1>
-          <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+          <p style={{ 
+            fontSize: '1.25rem', 
+            color: '#6b7280', 
+            maxWidth: '42rem', 
+            margin: '0 auto' 
+          }}>
             Discover your next great read based on your Spotify listening habits
           </p>
         </header>
-
-        <AuthenticatedContent />
-
-        <footer className="text-center mt-20 text-gray-500 dark:text-gray-400">
-          <p>
-            Ready to discover your next favorite book? Start by connecting your
-            Spotify account above.
-          </p>
-        </footer>
+        <div style={{
+          maxWidth: '56rem',
+          margin: '0 auto 4rem auto',
+          textAlign: 'center'
+        }}>
+          <div style={{
+            background: 'rgba(255, 255, 255, 0.8)',
+            borderRadius: '1rem',
+            padding: '3rem',
+            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)'
+          }}>
+            <div style={{
+              animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'
+            }}>
+              Loading your music-powered book recommendations...
+            </div>
+          </div>
+        </div>
       </main>
     </div>
+  );
+}
+
+export default function Home() {
+  return (
+    <Suspense fallback={<LoadingSkeleton />}>
+      <ClientWrapper />
+    </Suspense>
   );
 }
