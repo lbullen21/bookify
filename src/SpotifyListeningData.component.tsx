@@ -101,9 +101,31 @@ export default function SpotifyListeningData({
     }
   };
 
+  // Function to get book recommendations based on a track's primary artist
+  const getTrackRecommendations = async (track: RecentlyPlayedTrack['track']) => {
+    const primaryArtist = track.artists[0]; // Use the primary artist
+    const artistForRecommendation: SpotifyArtist = {
+      id: primaryArtist.id,
+      name: primaryArtist.name,
+      genres: [], // We don't have genre info from track data, will rely on LLM
+      images: [],
+      popularity: 0,
+      external_urls: { spotify: '' },
+      followers: { total: 0 }
+    };
+    
+    await getBookRecommendations(artistForRecommendation);
+  };
+
   const handleArtistClick = (e: React.MouseEvent, artist: SpotifyArtist) => {
     e.preventDefault();
     getBookRecommendations(artist);
+  };
+
+  const handleTrackClick = (e: React.MouseEvent, track: RecentlyPlayedTrack['track']) => {
+    e.preventDefault();
+    e.stopPropagation();
+    getTrackRecommendations(track);
   };
 
   const timeRangeLabels = {
@@ -297,15 +319,15 @@ export default function SpotifyListeningData({
       <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-xl border border-gray-200 dark:border-gray-700">
         <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-6">
           ⏮️ Recently Played
+          <span className="block text-sm font-normal text-gray-500 dark:text-gray-400 mt-1">
+            Click any track to get book recommendations for that artist
+          </span>
         </h3>
         <div className="grid gap-3">
           {profile.recentTracks.slice(0, 5).map(item => (
-            <a
+            <div
               key={`${item.track.id}-${item.played_at}`}
-              href={item.track.external_urls.spotify}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center space-x-4 p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors cursor-pointer"
+              className="flex items-center space-x-4 p-3 rounded-lg transition-colors"
             >
               {item.track.album.images[0] && (
                 <Image
@@ -317,17 +339,35 @@ export default function SpotifyListeningData({
                 />
               )}
               <div className="flex-1">
-                <h4 className="font-medium text-gray-900 dark:text-white">
-                  {item.track.name}
-                </h4>
-                <p className="text-sm text-gray-600 dark:text-gray-400">
-                  {item.track.artists.map(artist => artist.name).join(', ')}
-                </p>
+                <button
+                  onClick={(e) => handleTrackClick(e, item.track)}
+                  className="text-left w-full hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded-md transition-colors"
+                  title={`Get book recommendations for ${item.track.artists[0].name}`}
+                >
+                  <h4 className="font-medium text-gray-900 dark:text-white">
+                    {item.track.name}
+                  </h4>
+                  <p className="text-sm text-purple-600 dark:text-purple-400 hover:text-purple-800 dark:hover:text-purple-300">
+                    {item.track.artists.map(artist => artist.name).join(', ')} 
+                    <span className="text-xs ml-2 opacity-75">→ Click for books</span>
+                  </p>
+                </button>
               </div>
-              <div className="text-xs text-gray-500 dark:text-gray-500">
-                {formatDate(item.played_at)}
+              <div className="flex flex-col items-end space-y-1">
+                <div className="text-xs text-gray-500 dark:text-gray-500">
+                  {formatDate(item.played_at)}
+                </div>
+                <a
+                  href={item.track.external_urls.spotify}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-xs text-green-600 hover:text-green-800 dark:text-green-400 dark:hover:text-green-300"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  🎵 Spotify
+                </a>
               </div>
-            </a>
+            </div>
           ))}
         </div>
       </div>

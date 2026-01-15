@@ -37,16 +37,23 @@ async function generateLLMBookQueries(artist: {
   name: string;
   genres?: string[];
 }): Promise<string[]> {
+  const genreInfo = artist.genres && artist.genres.length > 0 
+    ? artist.genres.join(', ') 
+    : 'Unknown (please analyze the artist\'s general style and musical characteristics)';
+    
   const prompt = `As a literary expert, analyze this musical artist and suggest book search terms:
     
 Artist: ${artist.name}
-Genres: ${artist.genres?.join(', ') || 'Unknown'}
+Genres: ${genreInfo}
 
-Generate 5-7 specific book search queries that would find books matching this artist's aesthetic. Include:
+Based on what you know about this artist's music style, themes, and aesthetic, generate 5-7 specific book search queries that would find books matching their artistic vibe. Include:
 - Books that match the mood/themes of their music
-- Genres that align with their artistic style
-- Specific keywords that capture their vibe
+- Literary genres that align with their artistic style  
+- Specific keywords that capture their aesthetic
 - Mix of popular and literary fiction searches
+- Consider the artist's cultural impact and fan base
+
+If genre info is limited, use your knowledge of the artist to infer their style and recommend accordingly.
 
 Return only the search queries, one per line.`;
 
@@ -134,12 +141,13 @@ async function generateLLMBookReason(
   artist: { name: string; genres?: string[] },
   book: BookRecommendation
 ): Promise<string> {
-  const prompt = `Explain why fans of ${artist.name} would enjoy this book:
+  const prompt = `Explain why fans of ${artist.name} would enjoy this book, considering their musical style and artistic themes:
     
 Book: "${book.title}" by ${book.author}
 Genre: ${book.genre}
+Book Description: ${book.description}
 
-Write a personalized 1-2 sentence explanation connecting the artist's style to this book.`;
+Write a personalized 1-2 sentence explanation connecting ${artist.name}'s artistic style, themes, or fanbase to this book's content. Be specific about the connection.`;
 
   try {
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
@@ -151,19 +159,19 @@ Write a personalized 1-2 sentence explanation connecting the artist's style to t
       body: JSON.stringify({
         model: 'gpt-4o-mini',
         messages: [{ role: 'user', content: prompt }],
-        max_tokens: 100,
+        max_tokens: 120, // Slightly increased for more detailed explanations
         temperature: 0.7,
       }),
     });
 
     if (!response.ok) {
-      return `Based on ${artist.name}'s style, this book offers compelling storytelling.`;
+      return `Based on ${artist.name}'s artistic style and themes, this book offers compelling storytelling that resonates with their musical aesthetic.`;
     }
 
     const data = await response.json();
     return (
       data.choices[0]?.message?.content?.trim() ||
-      `Perfect for ${artist.name} fans.`
+      `Perfect for ${artist.name} fans who appreciate thoughtful storytelling.`
     );
   } catch {
     return `Based on ${artist.name}'s style, this book offers compelling storytelling.`;
