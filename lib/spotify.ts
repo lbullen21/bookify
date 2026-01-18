@@ -168,6 +168,12 @@ export function createSpotifyAPI(session: Session): SpotifyAPI | null {
     return null;
   }
 
+  // Check if there's a refresh error
+  if (session.error === 'RefreshAccessTokenError') {
+    console.error('Token refresh failed, user needs to re-authenticate');
+    return null;
+  }
+
   return new SpotifyAPI(session.accessToken);
 }
 
