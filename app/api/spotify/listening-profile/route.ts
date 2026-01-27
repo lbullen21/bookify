@@ -21,10 +21,10 @@ export async function GET(request: NextRequest) {
     const spotifyAPI = createSpotifyAPI(session);
     if (!spotifyAPI) {
       return NextResponse.json(
-        { 
+        {
           error: 'Spotify authentication required',
           code: 'AUTH_REQUIRED',
-          message: 'Please reconnect your Spotify account'
+          message: 'Please reconnect your Spotify account',
         },
         { status: 401 }
       );
@@ -50,20 +50,21 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(profile);
   } catch (error) {
     console.error('Error creating listening profile:', error);
-    
+
     // Check if it's a token expiration error
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    const errorMessage =
+      error instanceof Error ? error.message : 'Unknown error';
     if (errorMessage.includes('401') || errorMessage.includes('expired')) {
       return NextResponse.json(
-        { 
+        {
           error: 'Spotify authentication expired',
           code: 'TOKEN_EXPIRED',
-          message: 'Please reconnect your Spotify account'
+          message: 'Please reconnect your Spotify account',
         },
         { status: 401 }
       );
     }
-    
+
     return NextResponse.json(
       { error: 'Failed to create listening profile' },
       { status: 500 }

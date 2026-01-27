@@ -9,11 +9,13 @@ Bookify is an intelligent book recommendation platform that analyzes your Spotif
 ## ✨ Features
 
 ### 🎯 **Intelligent Music Analysis**
+
 - Connect your Spotify account to analyze listening patterns
 - View top artists and recently played tracks
 - Understand your musical preferences and genres
 
 ### 🤖 **AI-Powered Book Matching**
+
 - Uses OpenAI GPT-4o-mini to generate personalized book search queries
 - Creates intelligent connections between musical artists and literary genres
 - Provides detailed explanations for why each book matches your taste
@@ -25,6 +27,7 @@ Bookify is an intelligent book recommendation platform that analyzes your Spotif
 - Powered by Google Books API for comprehensive book data
 
 ### 🔄 **Real-Time Recommendations**
+
 - Click any artist or recent track for instant book suggestions
 - Fallback system ensures recommendations even when AI is unavailable
 - Automatic token refresh for seamless Spotify integration
@@ -43,7 +46,7 @@ Visit **[https://127.0.0.1:3000](https://127.0.0.1:3000)** (local HTTPS developm
 
 ## 📋 Prerequisites
 
-- **Node.js** 18+ 
+- **Node.js** 18+
 - **Spotify Developer Account** for API access
 - **OpenAI API Account** for AI recommendations
 - **SSL Certificates** for HTTPS (required by Spotify OAuth)
@@ -51,6 +54,7 @@ Visit **[https://127.0.0.1:3000](https://127.0.0.1:3000)** (local HTTPS developm
 ## 🔧 Installation & Setup
 
 ### 1. Clone the Repository
+
 ```bash
 git clone https://github.com/lbullen21/bookify.git
 cd bookify
@@ -58,6 +62,7 @@ npm install
 ```
 
 ### 2. Environment Configuration
+
 Create a `.env.local` file in the root directory:
 
 ```bash
@@ -77,18 +82,22 @@ NODE_ENV=development
 ```
 
 ### 3. Spotify App Setup
+
 1. Go to [Spotify Developer Dashboard](https://developer.spotify.com/dashboard)
 2. Create a new app
 3. Add redirect URI: `https://127.0.0.1:3000/api/auth/callback/spotify`
 4. Copy Client ID and Client Secret to `.env.local`
 
 ### 4. OpenAI API Setup
+
 1. Visit [OpenAI API Platform](https://platform.openai.com/api-keys)
 2. Create an API key
 3. Add it to `.env.local` as `OPENAI_API_KEY`
 
 ### 5. SSL Certificates
+
 Generate SSL certificates for HTTPS development:
+
 ```bash
 # Using mkcert (recommended)
 mkcert -install
@@ -101,6 +110,7 @@ openssl req -x509 -newkey rsa:4096 -keyout 127.0.0.1-key.pem -out 127.0.0.1.pem 
 Place `127.0.0.1.pem` and `127.0.0.1-key.pem` in the project root.
 
 ### 6. Start Development Server
+
 ```bash
 npm run dev
 ```
@@ -110,18 +120,22 @@ The app will be available at **https://127.0.0.1:3000**
 ## 📖 Usage Guide
 
 ### Getting Started
+
 1. **Visit the App**: Navigate to https://127.0.0.1:3000
 2. **Connect Spotify**: Click "Connect with Spotify" and authorize the app
 3. **View Your Profile**: See your top artists and recent listening history
 
 ### Getting Book Recommendations
+
 1. **Click Any Artist**: Click on artists in your top artists list
 2. **Click Recent Tracks**: Click on any recently played track
 3. **View Recommendations**: See 5+ personalized book suggestions with AI-generated explanations
 4. **Explore Books**: Click book covers or Amazon links to learn more
 
 ### Understanding Recommendations
+
 Each book recommendation includes:
+
 - **Cover Image**: Visual representation from Google Books
 - **Personalized Reason**: AI-generated explanation connecting the book to your musical taste
 - **Amazon Link**: Direct link to purchase or learn more
@@ -129,8 +143,9 @@ Each book recommendation includes:
 ## 🏗️ Architecture
 
 ### API Routes
+
 - `/api/auth/[...nextauth]` - NextAuth.js authentication
-- `/api/spotify/listening-profile` - User's Spotify data analysis  
+- `/api/spotify/listening-profile` - User's Spotify data analysis
 - `/api/spotify/top-artists` - Top artists endpoint
 - `/api/spotify/recently-played` - Recent tracks endpoint
 - `/api/recommendations` - AI-powered book recommendations
@@ -138,6 +153,7 @@ Each book recommendation includes:
 - `/api/debug/session` - Authentication debugging
 
 ### Key Components
+
 - `AuthenticatedContent` - Main authenticated user interface
 - `SpotifyListeningData` - Music analysis and artist display
 - `BookRecommendations` - Book recommendation results
@@ -145,6 +161,7 @@ Each book recommendation includes:
 - `ClientWrapper` - Hydration-safe client component
 
 ### AI Workflow
+
 1. **Artist Analysis**: Extract artist name and genres from Spotify data
 2. **Query Generation**: AI creates 5-7 targeted book search queries
 3. **Book Fetching**: Google Books API retrieval with relevance ranking
@@ -175,23 +192,29 @@ npm run format     # Format code with Prettier
 ### Common Issues
 
 **Spotify 401 Errors**
+
 - Token expired - reconnect your Spotify account
 - Check redirect URI matches exactly: `https://127.0.0.1:3000/api/auth/callback/spotify`
 
 **SSL Certificate Issues**
+
 - Ensure certificates are in project root
 - Browser may show security warning - click "Advanced" → "Proceed to 127.0.0.1"
 
 **OpenAI Rate Limits**
+
 - App includes fallback recommendations when AI quota exceeded
 - Consider upgrading OpenAI plan for higher limits
 
 **Hydration Errors**
+
 - App uses advanced hydration-safe architecture
 - Clear browser cache and restart development server
 
 ### Debug Mode
+
 Visit `/debug` for session and API testing:
+
 - https://127.0.0.1:3000/debug
 
 ## 🤝 Contributing
@@ -224,4 +247,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 **Made with ❤️ for music lovers and book enthusiasts**
 
-*Discover your next favorite book through the power of your music taste!* 🎵📚
+_Discover your next favorite book through the power of your music taste!_ 🎵📚

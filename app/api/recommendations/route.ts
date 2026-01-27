@@ -37,10 +37,11 @@ async function generateLLMBookQueries(artist: {
   name: string;
   genres?: string[];
 }): Promise<string[]> {
-  const genreInfo = artist.genres && artist.genres.length > 0 
-    ? artist.genres.join(', ') 
-    : 'Unknown (please analyze the artist\'s general style and musical characteristics)';
-    
+  const genreInfo =
+    artist.genres && artist.genres.length > 0
+      ? artist.genres.join(', ')
+      : "Unknown (please analyze the artist's general style and musical characteristics)";
+
   const prompt = `As a literary expert, analyze this musical artist and suggest book search terms:
     
 Artist: ${artist.name}
@@ -128,7 +129,7 @@ function getFallbackQueries(artist: {
     'literary fiction award winner',
     'bestselling novel recent',
     'character driven fiction',
-    'modern literature acclaimed'
+    'modern literature acclaimed',
   ];
 
   queries.push(...generalFallbacks);
@@ -265,7 +266,10 @@ export async function POST(request: NextRequest) {
     }
 
     // Second pass: if we still don't have enough, try remaining queries
-    if (recommendations.length < minRecommendations && searchQueries.length > 3) {
+    if (
+      recommendations.length < minRecommendations &&
+      searchQueries.length > 3
+    ) {
       for (const query of searchQueries.slice(3)) {
         try {
           const googleBooks = await fetchBooksFromGoogle(query, 5);
@@ -291,10 +295,10 @@ export async function POST(request: NextRequest) {
     // Third pass: if still not enough, try broader genre-based searches
     if (recommendations.length < minRecommendations) {
       const fallbackQueries = getFallbackQueries(artist);
-      
+
       for (const query of fallbackQueries) {
         if (recommendations.length >= minRecommendations) break;
-        
+
         try {
           const googleBooks = await fetchBooksFromGoogle(query, 10); // More books for fallback
 

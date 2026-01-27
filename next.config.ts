@@ -25,6 +25,10 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  // Remove custom server config for production
+  experimental: {
+    serverComponentsExternalPackages: ['@next-auth/prisma-adapter'],
+  },
 };
 
 export default nextConfig;
