@@ -42,21 +42,29 @@ async function generateLLMBookQueries(artist: {
       ? artist.genres.join(', ')
       : "Unknown (please analyze the artist's general style and musical characteristics)";
 
-  const prompt = `As a literary expert, analyze this musical artist and suggest book search terms:
+  const prompt = `As a literary expert, analyze this musical artist and suggest book search queries that focus on BESTSELLING NOVELS and POPULAR CURRENT FICTION:
     
 Artist: ${artist.name}
 Genres: ${genreInfo}
 
-Based on what you know about this artist's music style, themes, and aesthetic, generate 5-7 specific book search queries that would find books matching their artistic vibe. Include:
-- Books that match the mood/themes of their music
-- Literary genres that align with their artistic style  
-- Specific keywords that capture their aesthetic
-- Mix of popular and literary fiction searches
-- Consider the artist's cultural impact and fan base
+Based on what you know about this artist's music style, themes, and aesthetic, generate 5-7 specific book search queries that would find BESTSELLING NOVELS and CURRENTLY POPULAR FICTION matching their artistic vibe. Include:
+- Current New York Times bestseller NOVELS that match the mood/themes of their music
+- Popular FICTION books from 2023-2024 that align with their artistic style
+- Trending NOVELS on social media (BookTok/Goodreads) that capture their aesthetic
+- Award-winning recent FICTION releases that resonate with their fan base
+- Bestselling NOVELS in genres that match their musical style
 
-If genre info is limited, use your knowledge of the artist to infer their style and recommend accordingly.
+Focus on NOVELS and FICTION that are:
+- Currently on fiction bestseller lists
+- Trending novels on social media
+- Recently published fiction (2022-2024)
+- Highly rated novels and widely discussed fiction
 
-Return only the search queries, one per line.`;
+IMPORTANT: Only suggest searches for NOVELS, FICTION, and STORIES. Do NOT include searches for literary criticism, academic books, or non-fiction about literature.
+
+If genre info is limited, use your knowledge of the artist to infer their style and recommend popular novels accordingly.
+
+Return only the search queries for NOVELS/FICTION, one per line. Include terms like "novel", "fiction", "bestseller", "popular", "trending", "2024" in your queries. Avoid academic or literary criticism terms.`;
 
   try {
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
@@ -102,37 +110,61 @@ function getFallbackQueries(artist: {
   const artistGenres = artist.genres?.slice(0, 3) || [];
   const queries: string[] = [];
 
-  // Genre-based searches
+  // Genre-based searches focused on bestsellers and popular books
   artistGenres.forEach((genre: string) => {
     const lowerGenre = genre.toLowerCase();
 
     if (lowerGenre.includes('pop')) {
-      queries.push('contemporary fiction bestseller', 'romantic drama novel');
+      queries.push(
+        'contemporary fiction bestseller 2024',
+        'popular romance bestseller trending'
+      );
     } else if (lowerGenre.includes('rock')) {
-      queries.push('literary fiction award', 'dark contemporary novel');
+      queries.push(
+        'literary fiction bestseller award winner',
+        'popular dark fiction bestseller 2023'
+      );
     } else if (lowerGenre.includes('electronic')) {
-      queries.push('science fiction cyberpunk', 'futuristic thriller');
+      queries.push(
+        'science fiction bestseller 2024',
+        'trending cyberpunk bestseller'
+      );
     } else if (lowerGenre.includes('jazz')) {
-      queries.push('literary fiction sophisticated', 'urban literary novel');
+      queries.push(
+        'literary fiction award winner bestseller',
+        'popular sophisticated fiction trending'
+      );
     } else if (lowerGenre.includes('country')) {
-      queries.push('southern fiction novel', 'rural literary fiction');
+      queries.push(
+        'southern fiction bestseller 2024',
+        'popular rural fiction award winner'
+      );
     } else if (lowerGenre.includes('hip hop') || lowerGenre.includes('rap')) {
-      queries.push('urban fiction bestseller', 'contemporary social drama');
+      queries.push(
+        'urban fiction bestseller trending',
+        'contemporary social fiction popular 2024'
+      );
     } else {
-      queries.push('bestseller fiction', 'popular contemporary novel');
+      queries.push(
+        'bestseller fiction trending 2024',
+        'popular contemporary bestseller'
+      );
     }
   });
 
-  // Always add some general fallback queries to ensure variety
-  const generalFallbacks = [
-    'contemporary fiction popular',
-    'literary fiction award winner',
-    'bestselling novel recent',
-    'character driven fiction',
-    'modern literature acclaimed',
+  // Bestseller-focused fallback queries
+  const bestsellerFallbacks = [
+    'New York Times bestseller fiction 2024',
+    'Goodreads choice award winner bestseller',
+    'BookTok viral bestseller 2024',
+    'Amazon bestseller contemporary fiction',
+    'trending bestseller novel 2023',
+    'popular fiction bestseller list current',
+    'award winning bestseller recent',
+    'viral social media bestseller book',
   ];
 
-  queries.push(...generalFallbacks);
+  queries.push(...bestsellerFallbacks);
 
   // Remove duplicates and return first 8 queries
   return [...new Set(queries)].slice(0, 8);

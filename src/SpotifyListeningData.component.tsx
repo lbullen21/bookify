@@ -79,6 +79,8 @@ export default function SpotifyListeningData({
   const getBookRecommendations = async (artist: SpotifyArtist) => {
     setLoadingRecommendations(true);
     try {
+      console.log('Sending artist data:', artist); // Debug log
+
       const response = await fetch('/api/recommendations', {
         method: 'POST',
         headers: {
@@ -87,11 +89,16 @@ export default function SpotifyListeningData({
         body: JSON.stringify({ artist }),
       });
 
+      console.log('Response status:', response.status); // Debug log
+
       if (!response.ok) {
-        throw new Error('Failed to fetch recommendations');
+        const errorText = await response.text();
+        console.error('Response error:', errorText); // Debug log
+        throw new Error(`Failed to fetch recommendations: ${response.status}`);
       }
 
       const data: RecommendationResponse = await response.json();
+      console.log('Received recommendations:', data); // Debug log
       setRecommendations(data);
     } catch (error) {
       console.error('Error fetching recommendations:', error);
