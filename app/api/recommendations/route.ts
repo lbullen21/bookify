@@ -42,29 +42,34 @@ async function generateLLMBookQueries(artist: {
       ? artist.genres.join(', ')
       : "Unknown (please analyze the artist's general style and musical characteristics)";
 
-  const prompt = `As a literary expert, analyze this musical artist and suggest book search queries that focus on BESTSELLING NOVELS and POPULAR CURRENT FICTION:
-    
+  const prompt = `You are a literary expert for Bookify, a premium book discovery app. Analyze this musical artist deeply and create sophisticated book search queries for thoughtful, non-obvious recommendations.
+
 Artist: ${artist.name}
-Genres: ${genreInfo}
+Musical Genres: ${genreInfo}
 
-Based on what you know about this artist's music style, themes, and aesthetic, generate 5-7 specific book search queries that would find BESTSELLING NOVELS and CURRENTLY POPULAR FICTION matching their artistic vibe. Include:
-- Current New York Times bestseller NOVELS that match the mood/themes of their music
-- Popular FICTION books from 2023-2024 that align with their artistic style
-- Trending NOVELS on social media (BookTok/Goodreads) that capture their aesthetic
-- Award-winning recent FICTION releases that resonate with their fan base
-- Bestselling NOVELS in genres that match their musical style
+Perform a deep thematic analysis considering:
+- Emotional atmosphere and mood of their music
+- Lyrical themes, storytelling approach, and narrative style
+- Cultural context, social commentary, or philosophical undertones
+- Aesthetic sensibilities and artistic evolution
+- The psychological profile of their fanbase
 
-Focus on NOVELS and FICTION that are:
-- Currently on fiction bestseller lists
-- Trending novels on social media
-- Recently published fiction (2022-2024)
-- Highly rated novels and widely discussed fiction
+Generate 6-8 specific search queries for books that match their THEMATIC DEPTH and EMOTIONAL RESONANCE. Focus on:
+- Literary fiction that captures similar emotional landscapes
+- Contemporary novels with matching atmospheric qualities
+- Books that explore parallel themes or philosophical questions
+- Stories with similar narrative energy or storytelling techniques
+- Works that would appeal to the artist's specific fanbase psychology
 
-IMPORTANT: Only suggest searches for NOVELS, FICTION, and STORIES. Do NOT include searches for literary criticism, academic books, or non-fiction about literature.
+Avoid surface-level genre matching. Instead, find books that share:
+- Similar emotional complexity
+- Parallel artistic sensibilities
+- Matching thematic preoccupations
+- Comparable storytelling energy
 
-If genre info is limited, use your knowledge of the artist to infer their style and recommend popular novels accordingly.
+Create search queries that will find unique, thoughtful recommendations. Include specific thematic keywords, mood descriptors, and literary elements rather than just genres.
 
-Return only the search queries for NOVELS/FICTION, one per line. Include terms like "novel", "fiction", "bestseller", "popular", "trending", "2024" in your queries. Avoid academic or literary criticism terms.`;
+Return only the search queries, one per line, focusing on thematic depth over popularity metrics.`;
 
   try {
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
@@ -76,8 +81,8 @@ Return only the search queries for NOVELS/FICTION, one per line. Include terms l
       body: JSON.stringify({
         model: 'gpt-4o-mini',
         messages: [{ role: 'user', content: prompt }],
-        max_tokens: 250, // Increased for more queries
-        temperature: 0.7,
+        max_tokens: 300,
+        temperature: 0.8,
       }),
     });
 
@@ -93,7 +98,7 @@ Return only the search queries for NOVELS/FICTION, one per line. Include terms l
       return content
         .split('\n')
         .filter((line: string) => line.trim())
-        .slice(0, 7); // Increased from 5 to 7
+        .slice(0, 8);
     }
 
     return getFallbackQueries(artist);
@@ -107,66 +112,58 @@ function getFallbackQueries(artist: {
   name: string;
   genres?: string[];
 }): string[] {
-  const artistGenres = artist.genres?.slice(0, 3) || [];
+  const artistGenres = artist.genres?.slice(0, 2) || [];
   const queries: string[] = [];
 
-  // Genre-based searches focused on bestsellers and popular books
+  // Thematically sophisticated fallback searches
   artistGenres.forEach((genre: string) => {
     const lowerGenre = genre.toLowerCase();
 
     if (lowerGenre.includes('pop')) {
       queries.push(
-        'contemporary fiction bestseller 2024',
-        'popular romance bestseller trending'
+        'coming of age literary fiction emotional depth',
+        'contemporary romance psychological complexity'
       );
     } else if (lowerGenre.includes('rock')) {
       queries.push(
-        'literary fiction bestseller award winner',
-        'popular dark fiction bestseller 2023'
+        'literary fiction rebellion counterculture',
+        'dark psychological fiction existential themes'
       );
     } else if (lowerGenre.includes('electronic')) {
       queries.push(
-        'science fiction bestseller 2024',
-        'trending cyberpunk bestseller'
+        'speculative fiction identity technology',
+        'literary science fiction human connection'
       );
     } else if (lowerGenre.includes('jazz')) {
       queries.push(
-        'literary fiction award winner bestseller',
-        'popular sophisticated fiction trending'
+        'sophisticated literary fiction cultural depth',
+        'historical fiction artistic sophistication'
       );
     } else if (lowerGenre.includes('country')) {
       queries.push(
-        'southern fiction bestseller 2024',
-        'popular rural fiction award winner'
+        'literary fiction family heritage place',
+        'contemporary fiction small town identity'
       );
     } else if (lowerGenre.includes('hip hop') || lowerGenre.includes('rap')) {
       queries.push(
-        'urban fiction bestseller trending',
-        'contemporary social fiction popular 2024'
-      );
-    } else {
-      queries.push(
-        'bestseller fiction trending 2024',
-        'popular contemporary bestseller'
+        'literary fiction social justice identity',
+        'contemporary urban fiction authentic voice'
       );
     }
   });
 
-  // Bestseller-focused fallback queries
-  const bestsellerFallbacks = [
-    'New York Times bestseller fiction 2024',
-    'Goodreads choice award winner bestseller',
-    'BookTok viral bestseller 2024',
-    'Amazon bestseller contemporary fiction',
-    'trending bestseller novel 2023',
-    'popular fiction bestseller list current',
-    'award winning bestseller recent',
-    'viral social media bestseller book',
+  // Sophisticated thematic fallbacks
+  const literaryFallbacks = [
+    'literary fiction emotional complexity psychological depth',
+    'contemporary fiction character driven narrative',
+    'literary debut novel authentic voice',
+    'prize winning fiction thematic depth',
+    'literary fiction cultural identity belonging',
+    'contemporary novel interpersonal relationships',
   ];
 
-  queries.push(...bestsellerFallbacks);
+  queries.push(...literaryFallbacks);
 
-  // Remove duplicates and return first 8 queries
   return [...new Set(queries)].slice(0, 8);
 }
 
@@ -174,13 +171,20 @@ async function generateLLMBookReason(
   artist: { name: string; genres?: string[] },
   book: BookRecommendation
 ): Promise<string> {
-  const prompt = `Explain why fans of ${artist.name} would enjoy this book, considering their musical style and artistic themes:
-    
-Book: "${book.title}" by ${book.author}
-Genre: ${book.genre}
-Book Description: ${book.description}
+  const prompt = `You are a literary expert for Bookify. Create a sophisticated, specific connection between this artist and book that goes beyond surface-level similarities.
 
-Write a personalized 1-2 sentence explanation connecting ${artist.name}'s artistic style, themes, or fanbase to this book's content. Be specific about the connection.`;
+Artist: ${artist.name}
+Book: "${book.title}" by ${book.author}
+Book Description: ${book.description}
+Genre Context: ${book.genre}
+
+Analyze the deeper connections:
+- How do the book's emotional themes resonate with the artist's musical atmosphere?
+- What specific narrative elements mirror the artist's storytelling approach?
+- How might the book's psychological landscape appeal to this artist's fanbase?
+- What thematic preoccupations do they share?
+
+Write a compelling 2-3 sentence explanation that reveals a thoughtful, non-obvious connection. Be specific about shared themes, emotional resonance, or artistic sensibilities. Avoid generic statements about "fans will enjoy" - instead focus on WHY there's a meaningful artistic parallel.`;
 
   try {
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
@@ -192,22 +196,22 @@ Write a personalized 1-2 sentence explanation connecting ${artist.name}'s artist
       body: JSON.stringify({
         model: 'gpt-4o-mini',
         messages: [{ role: 'user', content: prompt }],
-        max_tokens: 120, // Slightly increased for more detailed explanations
+        max_tokens: 150,
         temperature: 0.7,
       }),
     });
 
     if (!response.ok) {
-      return `Based on ${artist.name}'s artistic style and themes, this book offers compelling storytelling that resonates with their musical aesthetic.`;
+      return `This book shares ${artist.name}'s exploration of complex emotional landscapes and authentic storytelling.`;
     }
 
     const data = await response.json();
     return (
       data.choices[0]?.message?.content?.trim() ||
-      `Perfect for ${artist.name} fans who appreciate thoughtful storytelling.`
+      `The thematic depth and narrative approach align with ${artist.name}'s artistic sensibilities.`
     );
   } catch {
-    return `Based on ${artist.name}'s style, this book offers compelling storytelling.`;
+    return `This book resonates with the emotional complexity found in ${artist.name}'s work.`;
   }
 }
 
@@ -273,71 +277,47 @@ export async function POST(request: NextRequest) {
     const searchQueries = await generateLLMBookQueries(artist);
     const recommendations: BookRecommendation[] = [];
     const usedBooks = new Set<string>();
-    const minRecommendations = 5;
+    const targetRecommendations = 5; // Exactly 5 recommendations
 
-    // First pass: try to get 5 recommendations from the first 3 queries
-    for (const query of searchQueries.slice(0, 3)) {
+    // Enhanced selection process for quality over quantity
+    for (const query of searchQueries) {
+      if (recommendations.length >= targetRecommendations) break;
+
       try {
-        const googleBooks = await fetchBooksFromGoogle(query, 5); // Increased from 3 to 5
+        const googleBooks = await fetchBooksFromGoogle(query, 8); // More options for better curation
 
         for (const book of googleBooks) {
           if (
             !usedBooks.has(book.title.toLowerCase()) &&
-            recommendations.length < minRecommendations
+            recommendations.length < targetRecommendations &&
+            book.description.length > 50 && // Ensure meaningful descriptions
+            book.rating >= 3.5 // Quality filter
           ) {
             book.reason = await generateLLMBookReason(artist, book);
             recommendations.push(book);
             usedBooks.add(book.title.toLowerCase());
           }
         }
-
-        if (recommendations.length >= minRecommendations) break;
       } catch {
-        console.error(`Error processing query:`);
+        console.error(`Error processing query: ${query}`);
       }
     }
 
-    // Second pass: if we still don't have enough, try remaining queries
-    if (
-      recommendations.length < minRecommendations &&
-      searchQueries.length > 3
-    ) {
-      for (const query of searchQueries.slice(3)) {
-        try {
-          const googleBooks = await fetchBooksFromGoogle(query, 5);
-
-          for (const book of googleBooks) {
-            if (
-              !usedBooks.has(book.title.toLowerCase()) &&
-              recommendations.length < minRecommendations
-            ) {
-              book.reason = await generateLLMBookReason(artist, book);
-              recommendations.push(book);
-              usedBooks.add(book.title.toLowerCase());
-            }
-          }
-
-          if (recommendations.length >= minRecommendations) break;
-        } catch {
-          console.error(`Error processing additional query:`);
-        }
-      }
-    }
-
-    // Third pass: if still not enough, try broader genre-based searches
-    if (recommendations.length < minRecommendations) {
+    // Quality assurance: ensure we have exactly 5 unique recommendations
+    if (recommendations.length < targetRecommendations) {
       const fallbackQueries = getFallbackQueries(artist);
 
       for (const query of fallbackQueries) {
-        if (recommendations.length >= minRecommendations) break;
+        if (recommendations.length >= targetRecommendations) break;
 
         try {
-          const googleBooks = await fetchBooksFromGoogle(query, 10); // More books for fallback
+          const googleBooks = await fetchBooksFromGoogle(query, 10);
 
           for (const book of googleBooks) {
             if (
               !usedBooks.has(book.title.toLowerCase()) &&
-              recommendations.length < minRecommendations
+              recommendations.length < targetRecommendations &&
+              book.rating >= 3.0
             ) {
               book.reason = await generateLLMBookReason(artist, book);
               recommendations.push(book);
@@ -345,7 +325,7 @@ export async function POST(request: NextRequest) {
             }
           }
         } catch {
-          console.error(`Error processing fallback query:`);
+          console.error(`Error processing fallback query: ${query}`);
         }
       }
     }
@@ -353,11 +333,12 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       artist: artist.name,
       genres: artist.genres || [],
-      recommendations,
-      total_found: recommendations.length,
+      recommendations: recommendations.slice(0, targetRecommendations), // Ensure exactly 5
+      total_found: Math.min(recommendations.length, targetRecommendations),
       generated_at: new Date().toISOString(),
       personalized: true,
       llm_powered: true,
+      thematic_analysis: true,
     });
   } catch (error) {
     console.error('Error generating recommendations:', error);

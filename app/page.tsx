@@ -3,20 +3,17 @@ import ClientWrapper from '@/components/ClientWrapper';
 
 function LoadingSkeleton() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-green-50">
-      <main className="max-w-7xl mx-auto px-6 py-16">
-        <header className="text-center mb-16">
-          <h1 className="text-6xl font-bold text-gray-900 mb-4">📚 Bookify</h1>
-          <p className="text-xl text-gray-500 max-w-2xl mx-auto">
-            Discover your next great read based on your Spotify listening habits
-          </p>
-        </header>
-        <div className="max-w-4xl mx-auto mb-16 text-center">
-          <div className="bg-white/80 rounded-2xl p-12 shadow-2xl">
-            <div className="animate-pulse">
-              Loading your music-powered book recommendations...
-            </div>
-          </div>
+    <div className="min-h-screen bg-slate-50">
+      <header className="bg-white border-b border-slate-200">
+        <div className="max-w-5xl mx-auto px-6 h-14 flex items-center">
+          <div className="h-4 w-16 bg-slate-100 rounded animate-pulse" />
+        </div>
+      </header>
+      <main className="max-w-5xl mx-auto px-6 py-20">
+        <div className="max-w-lg mx-auto text-center space-y-4">
+          <div className="h-8 bg-slate-100 rounded-lg animate-pulse" />
+          <div className="h-4 bg-slate-100 rounded-lg animate-pulse w-3/4 mx-auto" />
+          <div className="h-10 bg-slate-100 rounded-lg animate-pulse w-44 mx-auto mt-6" />
         </div>
       </main>
     </div>

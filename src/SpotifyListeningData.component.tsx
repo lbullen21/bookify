@@ -61,7 +61,6 @@ export default function SpotifyListeningData({
     useState<RecommendationResponse | null>(null);
   const [loadingRecommendations, setLoadingRecommendations] = useState(false);
 
-  // Helper function to format dates consistently across server and client
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -70,16 +69,14 @@ export default function SpotifyListeningData({
     return `${month}/${day}/${year}`;
   };
 
-  // Helper function to format numbers consistently across server and client
   const formatNumber = (num: number) => {
     return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
   };
 
-  // Function to get book recommendations for an artist
   const getBookRecommendations = async (artist: SpotifyArtist) => {
     setLoadingRecommendations(true);
     try {
-      console.log('Sending artist data:', artist); // Debug log
+      console.log('Sending artist data:', artist);
 
       const response = await fetch('/api/recommendations', {
         method: 'POST',
@@ -89,34 +86,32 @@ export default function SpotifyListeningData({
         body: JSON.stringify({ artist }),
       });
 
-      console.log('Response status:', response.status); // Debug log
+      console.log('Response status:', response.status);
 
       if (!response.ok) {
         const errorText = await response.text();
-        console.error('Response error:', errorText); // Debug log
+        console.error('Response error:', errorText);
         throw new Error(`Failed to fetch recommendations: ${response.status}`);
       }
 
       const data: RecommendationResponse = await response.json();
-      console.log('Received recommendations:', data); // Debug log
+      console.log('Received recommendations:', data);
       setRecommendations(data);
     } catch (error) {
       console.error('Error fetching recommendations:', error);
-      // You could add error handling here
     } finally {
       setLoadingRecommendations(false);
     }
   };
 
-  // Function to get book recommendations based on a track's primary artist
   const getTrackRecommendations = async (
     track: RecentlyPlayedTrack['track']
   ) => {
-    const primaryArtist = track.artists[0]; // Use the primary artist
+    const primaryArtist = track.artists[0];
     const artistForRecommendation: SpotifyArtist = {
       id: primaryArtist.id,
       name: primaryArtist.name,
-      genres: [], // We don't have genre info from track data, will rely on LLM
+      genres: [],
       images: [],
       popularity: 0,
       external_urls: { spotify: '' },
@@ -188,21 +183,32 @@ export default function SpotifyListeningData({
 
   if (status === 'loading' || loading) {
     return (
-      <div className="bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-xl border border-gray-200 dark:border-gray-700">
-        <div className="animate-pulse">
-          <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-1/3 mb-6"></div>
-          <div className="space-y-4">
-            {[...Array(5)].map((_, i) => (
-              <div key={i} className="flex items-center space-x-4">
-                <div className="w-16 h-16 bg-gray-200 dark:bg-gray-700 rounded"></div>
-                <div className="flex-1">
-                  <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4 mb-2"></div>
-                  <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-1/2"></div>
+      <div className="space-y-4">
+        {[...Array(3)].map((_, i) => (
+          <div
+            key={i}
+            className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden"
+          >
+            <div className="px-6 py-4 border-b border-slate-100 animate-pulse">
+              <div className="h-3 bg-slate-100 rounded w-16 mb-1.5" />
+              <div className="h-5 bg-slate-100 rounded w-32" />
+            </div>
+            <div className="divide-y divide-slate-50">
+              {[...Array(4)].map((_, j) => (
+                <div
+                  key={j}
+                  className="flex items-center gap-4 px-6 py-3.5 animate-pulse"
+                >
+                  <div className="w-10 h-10 bg-slate-100 rounded-full shrink-0" />
+                  <div className="flex-1 space-y-2">
+                    <div className="h-3.5 bg-slate-100 rounded w-1/2" />
+                    <div className="h-3 bg-slate-100 rounded w-1/3" />
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
-        </div>
+        ))}
       </div>
     );
   }
@@ -212,22 +218,20 @@ export default function SpotifyListeningData({
       error.includes('expired') || error.includes('reconnect');
 
     return (
-      <div className="bg-red-50 dark:bg-red-900/20 rounded-2xl p-8 border border-red-200 dark:border-red-800">
-        <h3 className="text-lg font-semibold text-red-800 dark:text-red-200 mb-2">
-          {isTokenError
-            ? 'Spotify Connection Expired'
-            : 'Error Loading Listening Data'}
+      <div className="bg-white border border-red-200 rounded-xl shadow-sm p-6">
+        <h3 className="text-sm font-semibold text-red-700 mb-1">
+          {isTokenError ? 'Session expired' : 'Failed to load data'}
         </h3>
-        <p className="text-red-600 dark:text-red-300 mb-4">{error}</p>
-        <div className="flex gap-3">
+        <p className="text-sm text-red-600 mb-4">{error}</p>
+        <div className="flex gap-2">
           {isTokenError && (
             <button
               onClick={() =>
                 (window.location.href = '/api/auth/signin/spotify')
               }
-              className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded flex items-center gap-2"
+              className="inline-flex items-center gap-2 text-sm px-3 py-1.5 bg-[#1DB954] hover:bg-[#17a348] text-white rounded-md transition-colors font-medium"
             >
-              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+              <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.42 1.56-.299.421-1.02.599-1.559.3z" />
               </svg>
               Reconnect Spotify
@@ -235,9 +239,9 @@ export default function SpotifyListeningData({
           )}
           <button
             onClick={() => fetchListeningProfile(timeRange)}
-            className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded"
+            className="text-sm px-3 py-1.5 bg-slate-900 hover:bg-slate-700 text-white rounded-md transition-colors font-medium"
           >
-            Try Again
+            Try again
           </button>
         </div>
       </div>
@@ -250,185 +254,184 @@ export default function SpotifyListeningData({
   console.log('Listening Profile:', profile);
 
   return (
-    <div className="space-y-8">
-      {/* Time Range Selector */}
-      <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-xl border border-gray-200 dark:border-gray-700">
-        <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
-          Your Music Profile
-        </h2>
-        <div className="flex space-x-2 mb-4">
-          {Object.entries(timeRangeLabels).map(([range, label]) => (
-            <button
-              key={range}
-              onClick={() => fetchListeningProfile(range)}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                timeRange === range
-                  ? 'bg-green-500 text-white'
-                  : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
-              }`}
-            >
-              {label}
-            </button>
-          ))}
+    <div className="space-y-4">
+      {/* Music Profile */}
+      <section className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
+        <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
+          <div>
+            <p className="text-xs font-medium text-slate-400 uppercase tracking-wider">
+              Overview
+            </p>
+            <h2 className="text-base font-semibold text-slate-900 mt-0.5">
+              Music Profile
+            </h2>
+          </div>
+          <div className="flex gap-1.5">
+            {Object.entries(timeRangeLabels).map(([range, label]) => (
+              <button
+                key={range}
+                onClick={() => fetchListeningProfile(range)}
+                className={`text-xs px-2.5 py-1 rounded-md font-medium transition-colors ${
+                  timeRange === range
+                    ? 'bg-slate-900 text-white'
+                    : 'bg-slate-100 text-slate-500 hover:bg-slate-200'
+                }`}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
         </div>
 
-        {/* Music Profile Analysis */}
         {profile.analysis && (
-          <div className="bg-green-50 dark:bg-green-900/20 rounded-xl p-6 border border-green-200 dark:border-green-800">
-            <h3 className="text-lg font-semibold text-green-800 dark:text-green-200 mb-4">
-              🎵 Your Musical DNA
-            </h3>
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4 text-sm">
-              <div className="text-center">
-                <div className="text-2xl font-bold text-green-600 dark:text-green-400">
-                  {profile.analysis.musicProfile.energy}
-                </div>
-                <div className="text-gray-600 dark:text-gray-400">
-                  Energy Level
-                </div>
+          <div className="grid grid-cols-2 md:grid-cols-4 divide-x divide-slate-100">
+            {[
+              { label: 'Energy', value: profile.analysis.musicProfile.energy },
+              { label: 'Mood', value: profile.analysis.musicProfile.mood },
+              {
+                label: 'Danceability',
+                value: profile.analysis.musicProfile.danceability,
+              },
+              {
+                label: 'Style',
+                value: profile.analysis.musicProfile.acoustic,
+              },
+            ].map(({ label, value }) => (
+              <div key={label} className="px-6 py-5 text-center">
+                <p className="text-sm font-semibold text-indigo-600">{value}</p>
+                <p className="text-xs text-slate-400 mt-0.5">{label}</p>
               </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-green-600 dark:text-green-400">
-                  {profile.analysis.musicProfile.mood}
-                </div>
-                <div className="text-gray-600 dark:text-gray-400">Mood</div>
-              </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-green-600 dark:text-green-400">
-                  {profile.analysis.musicProfile.danceability}
-                </div>
-                <div className="text-gray-600 dark:text-gray-400">
-                  Danceability
-                </div>
-              </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-green-600 dark:text-green-400">
-                  {profile.analysis.musicProfile.acoustic}
-                </div>
-                <div className="text-gray-600 dark:text-gray-400">Style</div>
-              </div>
-            </div>
+            ))}
           </div>
         )}
-      </div>
+      </section>
 
       {/* Top Artists */}
-      <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-xl border border-gray-200 dark:border-gray-700">
-        <div className="flex items-center justify-between mb-6">
-          <h3 className="text-xl font-bold text-gray-900 dark:text-white">
-            🎤 Your Top Artists
-          </h3>
-          <div className="text-sm text-purple-600 dark:text-purple-400 font-medium">
-            📚 Click for book recommendations
+      <section className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
+        <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
+          <div>
+            <p className="text-xs font-medium text-slate-400 uppercase tracking-wider">
+              Listening
+            </p>
+            <h2 className="text-base font-semibold text-slate-900 mt-0.5">
+              Top Artists
+            </h2>
           </div>
+          <span className="text-xs text-slate-400">
+            Click any artist for book picks
+          </span>
         </div>
-        <div className="grid gap-4">
+        <div className="divide-y divide-slate-50">
           {profile.topArtists.map((artist, index) => (
             <button
               key={artist.id}
               onClick={e => handleArtistClick(e, artist)}
-              className="flex items-center space-x-4 p-3 rounded-lg hover:bg-purple-50 dark:hover:bg-purple-900/20 transition-colors cursor-pointer text-left border border-transparent hover:border-purple-200 dark:hover:border-purple-700"
+              className="w-full flex items-center gap-4 px-6 py-3.5 hover:bg-slate-50 transition-colors text-left group"
             >
-              <div className="text-lg font-semibold text-gray-500 dark:text-gray-400 w-6">
+              <span className="text-xs font-medium text-slate-300 w-5 text-center shrink-0">
                 {index + 1}
-              </div>
-              {artist.images[0] && (
+              </span>
+              {artist.images[0] ? (
                 <Image
                   src={artist.images[0].url}
                   alt={artist.name}
-                  width={64}
-                  height={64}
-                  className="rounded-full object-cover"
+                  width={40}
+                  height={40}
+                  className="rounded-full object-cover shrink-0"
                 />
+              ) : (
+                <div className="w-10 h-10 rounded-full bg-slate-100 shrink-0" />
               )}
-              <div className="flex-1">
-                <h4 className="font-semibold text-gray-900 dark:text-white">
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-slate-900 truncate">
                   {artist.name}
-                </h4>
-                <p className="text-sm text-gray-600 dark:text-gray-400">
-                  {artist.genres.slice(0, 2).join(', ') || 'No genres listed'}
                 </p>
-                <p className="text-xs text-gray-500 dark:text-gray-500">
-                  {formatNumber(artist.followers.total)} followers
+                <p className="text-xs text-slate-400 truncate mt-0.5">
+                  {artist.genres.slice(0, 2).join(', ') || 'Artist'}
                 </p>
               </div>
-              <div className="text-purple-600 dark:text-purple-400 text-sm font-medium">
-                📚 Get Book Recs →
+              <div className="text-right shrink-0">
+                <p className="text-xs text-slate-400">
+                  {formatNumber(artist.followers.total)} followers
+                </p>
+                <p className="text-xs text-indigo-500 opacity-0 group-hover:opacity-100 transition-opacity mt-0.5">
+                  Get book recs →
+                </p>
               </div>
             </button>
           ))}
         </div>
-      </div>
+      </section>
 
       {/* Recently Played */}
-      <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-xl border border-gray-200 dark:border-gray-700">
-        <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-6">
-          ⏮️ Recently Played
-          <span className="block text-sm font-normal text-gray-500 dark:text-gray-400 mt-1">
-            Click any track to get book recommendations for that artist
-          </span>
-        </h3>
-        <div className="grid gap-3">
+      <section className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
+        <div className="px-6 py-4 border-b border-slate-100">
+          <p className="text-xs font-medium text-slate-400 uppercase tracking-wider">
+            History
+          </p>
+          <h2 className="text-base font-semibold text-slate-900 mt-0.5">
+            Recently Played
+          </h2>
+        </div>
+        <div className="divide-y divide-slate-50">
           {profile.recentTracks.slice(0, 5).map(item => (
             <div
               key={`${item.track.id}-${item.played_at}`}
-              className="flex items-center space-x-4 p-3 rounded-lg transition-colors"
+              className="flex items-center gap-4 px-6 py-3.5"
             >
               {item.track.album.images[0] && (
                 <Image
                   src={item.track.album.images[0].url}
                   alt={item.track.album.name}
-                  width={48}
-                  height={48}
-                  className="rounded object-cover"
+                  width={40}
+                  height={40}
+                  className="rounded object-cover shrink-0"
                 />
               )}
-              <div className="flex-1">
+              <div className="flex-1 min-w-0">
                 <button
                   onClick={e => handleTrackClick(e, item.track)}
-                  className="text-left w-full hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded-md transition-colors"
+                  className="text-left w-full group"
                   title={`Get book recommendations for ${item.track.artists[0].name}`}
                 >
-                  <h4 className="font-medium text-gray-900 dark:text-white">
+                  <p className="text-sm font-medium text-slate-900 truncate group-hover:text-indigo-600 transition-colors">
                     {item.track.name}
-                  </h4>
-                  <p className="text-sm text-purple-600 dark:text-purple-400 hover:text-purple-800 dark:hover:text-purple-300">
-                    {item.track.artists.map(artist => artist.name).join(', ')}
-                    <span className="text-xs ml-2 opacity-75">
-                      → Click for books
+                  </p>
+                  <p className="text-xs text-slate-400 truncate mt-0.5">
+                    {item.track.artists.map(a => a.name).join(', ')}
+                    <span className="text-indigo-400 opacity-0 group-hover:opacity-100 transition-opacity ml-1">
+                      → book recs
                     </span>
                   </p>
                 </button>
               </div>
-              <div className="flex flex-col items-end space-y-1">
-                <div className="text-xs text-gray-500 dark:text-gray-500">
+              <div className="text-right shrink-0 space-y-0.5">
+                <p className="text-xs text-slate-400">
                   {formatDate(item.played_at)}
-                </div>
+                </p>
                 <a
                   href={item.track.external_urls.spotify}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-xs text-green-600 hover:text-green-800 dark:text-green-400 dark:hover:text-green-300"
+                  className="text-xs text-[#1DB954] hover:underline block"
                   onClick={e => e.stopPropagation()}
                 >
-                  🎵 Spotify
+                  Spotify
                 </a>
               </div>
             </div>
           ))}
         </div>
-      </div>
+      </section>
 
       {/* Loading overlay for recommendations */}
       {loadingRecommendations && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center">
-          <div className="bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-2xl">
-            <div className="flex items-center space-x-4">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
-              <span className="text-lg font-medium text-gray-900 dark:text-white">
-                Finding perfect books for you...
-              </span>
-            </div>
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center">
+          <div className="bg-white rounded-xl p-8 shadow-2xl flex items-center gap-4">
+            <div className="animate-spin rounded-full h-5 w-5 border-2 border-slate-200 border-t-indigo-600" />
+            <span className="text-sm font-medium text-slate-700">
+              Finding perfect books...
+            </span>
           </div>
         </div>
       )}

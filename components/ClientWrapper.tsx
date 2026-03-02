@@ -1,21 +1,23 @@
+// Note: This file may have unsaved changes - check your editor for unsaved indicators
+
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useSession, signOut } from 'next-auth/react';
 import AuthenticatedContent from '@/src/AuthenticatedContent.component';
 
 export default function ClientWrapper() {
   const [hydrated, setHydrated] = useState(false);
+  const { data: session } = useSession();
 
   useEffect(() => {
-    // Double-check that we're in the browser and DOM is ready
     if (typeof window !== 'undefined' && document.readyState === 'complete') {
       setHydrated(true);
     } else {
       const handleLoad = () => setHydrated(true);
       window.addEventListener('load', handleLoad);
-      // Also set a fallback timer
       const timer = setTimeout(() => setHydrated(true), 100);
-      
+
       return () => {
         window.removeEventListener('load', handleLoad);
         clearTimeout(timer);
@@ -23,32 +25,59 @@ export default function ClientWrapper() {
     }
   }, []);
 
-  // Don't render anything until we're sure we're hydrated
-  if (!hydrated) {
-    return null;
-  }
+  if (!hydrated) return null;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-green-50 dark:from-gray-900 dark:via-black dark:to-gray-800">
-      <main className="container mx-auto px-6 py-16">
-        <header className="text-center mb-16">
-          <h1 className="text-6xl font-bold text-gray-900 dark:text-white mb-4">
-            📚 Bookify
-          </h1>
-          <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-            Discover your next great read based on your Spotify listening habits
-          </p>
-        </header>
+    <div className="min-h-screen bg-slate-50">
+      {/* Nav */}
+      <header className="bg-white border-b border-slate-200 sticky top-0 z-10">
+        <div className="max-w-5xl mx-auto px-6 h-14 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <svg
+              className="w-4 h-4 text-indigo-600"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={2}
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
+              />
+            </svg>
+            <span className="text-sm font-semibold text-slate-900 tracking-tight">
+              Bookify
+            </span>
+          </div>
 
+          {session && (
+            <div className="flex items-center gap-4">
+              <span className="text-sm text-slate-500 hidden sm:block">
+                {session.user?.name}
+              </span>
+              <button
+                onClick={() => signOut()}
+                className="text-sm text-slate-500 hover:text-slate-900 transition-colors"
+              >
+                Sign out
+              </button>
+            </div>
+          )}
+        </div>
+      </header>
+
+      <main className="max-w-5xl mx-auto px-6 py-10">
         <AuthenticatedContent />
-
-        <footer className="text-center mt-20 text-gray-500 dark:text-gray-400">
-          <p>
-            Ready to discover your next favorite book? Start by connecting your
-            Spotify account above.
-          </p>
-        </footer>
       </main>
+
+      <footer className="border-t border-slate-200 mt-20">
+        <div className="max-w-5xl mx-auto px-6 py-6">
+          <p className="text-xs text-slate-400">
+            Bookify — Discover books through your music taste
+          </p>
+        </div>
+      </footer>
     </div>
   );
 }
