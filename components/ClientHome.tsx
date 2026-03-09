@@ -43,7 +43,7 @@ export default function ClientHome() {
         {/* Header */}
         <header className="text-center mb-16">
           <h1 className="text-6xl font-bold text-gray-900 dark:text-white mb-4">
-            📚 Bookify
+            Bookify
           </h1>
           <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
             Discover your next great read based on your Spotify listening habits

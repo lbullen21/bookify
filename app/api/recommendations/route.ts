@@ -221,11 +221,16 @@ async function fetchBooksFromGoogle(
 ): Promise<BookRecommendation[]> {
   try {
     const encodedQuery = encodeURIComponent(query);
+    const apiKey = process.env.GOOGLE_BOOKS_API_KEY;
+    const keyParam = apiKey ? `&key=${apiKey}` : '';
     const response = await fetch(
-      `https://www.googleapis.com/books/v1/volumes?q=${encodedQuery}&maxResults=${maxResults}&orderBy=relevance&printType=books&langRestrict=en`
+      `https://www.googleapis.com/books/v1/volumes?q=${encodedQuery}&maxResults=${maxResults}&orderBy=relevance&printType=books&langRestrict=en${keyParam}`
     );
 
     if (!response.ok) {
+      console.error(
+        `Google Books API error: ${response.status} for query "${query}"`
+      );
       return [];
     }
 
@@ -275,70 +280,60 @@ export async function POST(request: NextRequest) {
     }
 
     const searchQueries = await generateLLMBookQueries(artist);
-    const recommendations: BookRecommendation[] = [];
     const usedBooks = new Set<string>();
-    const targetRecommendations = 5; // Exactly 5 recommendations
+    const targetRecommendations = 5;
 
-    // Enhanced selection process for quality over quantity
-    for (const query of searchQueries) {
-      if (recommendations.length >= targetRecommendations) break;
+    // Fetch from first 4 queries in parallel (avoids rate-limiting without API key)
+    const queryResults = await Promise.all(
+      searchQueries.slice(0, 4).map(q => fetchBooksFromGoogle(q, 6))
+    );
 
-      try {
-        const googleBooks = await fetchBooksFromGoogle(query, 8); // More options for better curation
+    // Flatten, deduplicate, and filter candidates
+    const candidates: BookRecommendation[] = [];
+    for (const books of queryResults) {
+      for (const book of books) {
+        if (
+          !usedBooks.has(book.title.toLowerCase()) &&
+          book.description.length > 20 &&
+          book.rating >= 3.0
+        ) {
+          candidates.push(book);
+          usedBooks.add(book.title.toLowerCase());
+        }
+      }
+    }
 
-        for (const book of googleBooks) {
-          if (
-            !usedBooks.has(book.title.toLowerCase()) &&
-            recommendations.length < targetRecommendations &&
-            book.description.length > 50 && // Ensure meaningful descriptions
-            book.rating >= 3.5 // Quality filter
-          ) {
-            book.reason = await generateLLMBookReason(artist, book);
-            recommendations.push(book);
+    // Fallback if not enough candidates
+    if (candidates.length < targetRecommendations) {
+      const fallbackResults = await Promise.all(
+        getFallbackQueries(artist)
+          .slice(0, 4)
+          .map(q => fetchBooksFromGoogle(q, 8))
+      );
+      for (const books of fallbackResults) {
+        for (const book of books) {
+          if (!usedBooks.has(book.title.toLowerCase())) {
+            candidates.push(book);
             usedBooks.add(book.title.toLowerCase());
           }
         }
-      } catch {
-        console.error(`Error processing query: ${query}`);
       }
     }
 
-    // Quality assurance: ensure we have exactly 5 unique recommendations
-    if (recommendations.length < targetRecommendations) {
-      const fallbackQueries = getFallbackQueries(artist);
+    const recommendations = candidates.slice(0, targetRecommendations);
 
-      for (const query of fallbackQueries) {
-        if (recommendations.length >= targetRecommendations) break;
-
-        try {
-          const googleBooks = await fetchBooksFromGoogle(query, 10);
-
-          for (const book of googleBooks) {
-            if (
-              !usedBooks.has(book.title.toLowerCase()) &&
-              recommendations.length < targetRecommendations &&
-              book.rating >= 3.0
-            ) {
-              book.reason = await generateLLMBookReason(artist, book);
-              recommendations.push(book);
-              usedBooks.add(book.title.toLowerCase());
-            }
-          }
-        } catch {
-          console.error(`Error processing fallback query: ${query}`);
-        }
-      }
-    }
+    // Generate all reasons in parallel
+    await Promise.all(
+      recommendations.map(async book => {
+        book.reason = await generateLLMBookReason(artist, book);
+      })
+    );
 
     return NextResponse.json({
       artist: artist.name,
       genres: artist.genres || [],
-      recommendations: recommendations.slice(0, targetRecommendations), // Ensure exactly 5
-      total_found: Math.min(recommendations.length, targetRecommendations),
+      recommendations: recommendations.slice(0, targetRecommendations),
       generated_at: new Date().toISOString(),
-      personalized: true,
-      llm_powered: true,
-      thematic_analysis: true,
     });
   } catch (error) {
     console.error('Error generating recommendations:', error);

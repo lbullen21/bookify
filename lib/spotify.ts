@@ -159,15 +159,6 @@ export function createSpotifyAPI(session: Session): SpotifyAPI | null {
     return null;
   }
 
-  // Check if token is expired
-  if (
-    session.accessTokenExpires &&
-    Date.now() > session.accessTokenExpires * 1000
-  ) {
-    console.error('Access token has expired');
-    return null;
-  }
-
   // Check if there's a refresh error
   if (session.error === 'RefreshAccessTokenError') {
     console.error('Token refresh failed, user needs to re-authenticate');
@@ -175,68 +166,6 @@ export function createSpotifyAPI(session: Session): SpotifyAPI | null {
   }
 
   return new SpotifyAPI(session.accessToken);
-}
-
-// Helper function to analyze listening patterns
-export function analyzeListeningPatterns(
-  tracks: SpotifyTrack[],
-  audioFeatures: AudioFeatures[]
-) {
-  if (tracks.length === 0 || audioFeatures.length === 0) {
-    return null;
-  }
-
-  const features = audioFeatures.filter(f => f !== null);
-
-  const analysis = {
-    averageEnergy:
-      features.reduce((sum, f) => sum + f.energy, 0) / features.length,
-    averageDanceability:
-      features.reduce((sum, f) => sum + f.danceability, 0) / features.length,
-    averageValence:
-      features.reduce((sum, f) => sum + f.valence, 0) / features.length,
-    averageAcousticness:
-      features.reduce((sum, f) => sum + f.acousticness, 0) / features.length,
-    averageTempo:
-      features.reduce((sum, f) => sum + f.tempo, 0) / features.length,
-
-    // Extract genres from tracks (simplified - would need artist details for full genres)
-    topGenres: {}, // Placeholder for genre analysis
-
-    // Get most common artists
-    topArtists: tracks.reduce((artists: Record<string, number>, track) => {
-      track.artists.forEach(artist => {
-        artists[artist.name] = (artists[artist.name] || 0) + 1;
-      });
-      return artists;
-    }, {}),
-  };
-
-  return {
-    ...analysis,
-    musicProfile: {
-      energy:
-        analysis.averageEnergy > 0.7
-          ? 'High Energy'
-          : analysis.averageEnergy > 0.4
-            ? 'Moderate Energy'
-            : 'Low Energy',
-      mood:
-        analysis.averageValence > 0.7
-          ? 'Positive'
-          : analysis.averageValence > 0.4
-            ? 'Neutral'
-            : 'Melancholic',
-      danceability:
-        analysis.averageDanceability > 0.7
-          ? 'Very Danceable'
-          : analysis.averageDanceability > 0.4
-            ? 'Somewhat Danceable'
-            : 'Not Danceable',
-      acoustic:
-        analysis.averageAcousticness > 0.5 ? 'Acoustic' : 'Electronic/Produced',
-    },
-  };
 }
 
 export type {

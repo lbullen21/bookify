@@ -60,6 +60,9 @@ export default function SpotifyListeningData({
   const [recommendations, setRecommendations] =
     useState<RecommendationResponse | null>(null);
   const [loadingRecommendations, setLoadingRecommendations] = useState(false);
+  const [recommendationsError, setRecommendationsError] = useState<
+    string | null
+  >(null);
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -75,30 +78,34 @@ export default function SpotifyListeningData({
 
   const getBookRecommendations = async (artist: SpotifyArtist) => {
     setLoadingRecommendations(true);
+    setRecommendationsError(null);
+    setRecommendations(null);
     try {
-      console.log('Sending artist data:', artist);
-
       const response = await fetch('/api/recommendations', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ artist }),
       });
 
-      console.log('Response status:', response.status);
-
       if (!response.ok) {
-        const errorText = await response.text();
-        console.error('Response error:', errorText);
-        throw new Error(`Failed to fetch recommendations: ${response.status}`);
+        throw new Error(`Server error ${response.status}`);
       }
 
       const data: RecommendationResponse = await response.json();
-      console.log('Received recommendations:', data);
+
+      if (!data.recommendations || data.recommendations.length === 0) {
+        setRecommendationsError(
+          `No books found for ${artist.name}. Try another artist!`
+        );
+        return;
+      }
+
       setRecommendations(data);
     } catch (error) {
       console.error('Error fetching recommendations:', error);
+      setRecommendationsError(
+        'Failed to load book recommendations. Please try again.'
+      );
     } finally {
       setLoadingRecommendations(false);
     }
@@ -108,7 +115,11 @@ export default function SpotifyListeningData({
     track: RecentlyPlayedTrack['track']
   ) => {
     const primaryArtist = track.artists[0];
-    const artistForRecommendation: SpotifyArtist = {
+    // Use full artist data from topArtists if available (has genres, images, etc.)
+    const knownArtist = profile?.topArtists.find(
+      a => a.id === primaryArtist.id
+    );
+    const artistForRecommendation: SpotifyArtist = knownArtist || {
       id: primaryArtist.id,
       name: primaryArtist.name,
       genres: [],
@@ -231,7 +242,11 @@ export default function SpotifyListeningData({
               }
               className="inline-flex items-center gap-2 text-sm px-3 py-1.5 bg-[#1DB954] hover:bg-[#17a348] text-white rounded-md transition-colors font-medium"
             >
-              <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor">
+              <svg
+                className="w-3.5 h-3.5"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+              >
                 <path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.42 1.56-.299.421-1.02.599-1.559.3z" />
               </svg>
               Reconnect Spotify
@@ -433,6 +448,44 @@ export default function SpotifyListeningData({
               Finding perfect books...
             </span>
           </div>
+        </div>
+      )}
+
+      {/* Recommendations error toast */}
+      {recommendationsError && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 bg-white border border-red-200 rounded-xl shadow-lg px-5 py-3.5 flex items-center gap-3 max-w-sm">
+          <svg
+            className="w-4 h-4 text-red-500 shrink-0"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            strokeWidth={2}
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"
+            />
+          </svg>
+          <p className="text-sm text-slate-700">{recommendationsError}</p>
+          <button
+            onClick={() => setRecommendationsError(null)}
+            className="ml-auto text-slate-400 hover:text-slate-600 shrink-0"
+          >
+            <svg
+              className="w-3.5 h-3.5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              strokeWidth={2}
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M6 18L18 6M6 6l12 12"
+              />
+            </svg>
+          </button>
         </div>
       )}
 
