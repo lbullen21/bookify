@@ -143,19 +143,6 @@ Each book recommendation includes:
 - **Personalized Reason**: AI-generated explanation connecting the book to your musical taste
 - **Amazon Link**: Direct link to purchase or learn more
 
-## 🏗️ Architecture
-
-### API Routes
-
-- `/api/auth/[...nextauth]` - NextAuth.js authentication
-- `/api/recommendations` - AI-powered book recommendations
-
-### Key Components
-
-- `AuthenticatedContent` - Main authenticated user interface
-- `ClientWrapper` - Hydration-safe client component
-- `ClientHome` - Main home page component
-
 ### AI Workflow
 
 1. **Artist Analysis**: Extract artist name and genres from Spotify data
@@ -163,14 +150,6 @@ Each book recommendation includes:
 3. **Book Fetching**: Google Books API retrieval with relevance ranking
 4. **Reason Generation**: AI explains why each book matches the artist
 5. **Fallback System**: Ensures recommendations even if AI fails
-
-## 🔒 Security Features
-
-- **HTTPS Only**: All communication encrypted with SSL
-- **OAuth 2.0**: Secure Spotify authentication
-- **Token Refresh**: Automatic access token renewal
-- **Environment Variables**: Sensitive data protection
-- **CORS Protection**: Secure API endpoints
 
 ## 🛠️ Development Scripts
 
@@ -182,44 +161,6 @@ npm run start      # Start production server
 npm run lint       # Run ESLint
 npm run format     # Format code with Prettier
 ```
-
-## 🐛 Troubleshooting
-
-### Common Issues
-
-**Spotify 401 Errors**
-
-- Token expired - reconnect your Spotify account
-- Check redirect URI matches exactly: `https://127.0.0.1:3000/api/auth/callback/spotify`
-
-**SSL Certificate Issues**
-
-- Ensure certificates are in project root
-- Browser may show security warning - click "Advanced" → "Proceed to 127.0.0.1"
-
-**OpenAI Rate Limits**
-
-- App includes fallback recommendations when AI quota exceeded
-- Consider upgrading OpenAI plan for higher limits
-
-**Hydration Errors**
-
-- App uses advanced hydration-safe architecture
-- Clear browser cache and restart development server
-
-### Debug Mode
-
-Visit `/debug` for session and API testing:
-
-- https://127.0.0.1:3000/debug
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch: `git checkout -b feature-name`
-3. Make your changes and test thoroughly
-4. Commit with descriptive messages
-5. Push to your fork and submit a Pull Request
 
 ## 📄 License
 
@@ -236,14 +177,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 📬 Contact
 
 - **Developer**: Lauren Pena
-- **Repository**: [https://github.com/lbullen21/bookify](https://github.com/lbullen21/bookify)
-
----
-
-**Made with ❤️ for music lovers and book enthusiasts**
-
-_Discover your next favorite book through the power of your music taste!_ 🎵📚
-
 - **Repository**: [https://github.com/lbullen21/bookify](https://github.com/lbullen21/bookify)
 
 ---
