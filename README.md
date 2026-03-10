@@ -148,20 +148,13 @@ Each book recommendation includes:
 ### API Routes
 
 - `/api/auth/[...nextauth]` - NextAuth.js authentication
-- `/api/spotify/listening-profile` - User's Spotify data analysis
-- `/api/spotify/top-artists` - Top artists endpoint
-- `/api/spotify/recently-played` - Recent tracks endpoint
 - `/api/recommendations` - AI-powered book recommendations
-- `/api/chat` - Conversational book recommendations
-- `/api/debug/session` - Authentication debugging
 
 ### Key Components
 
 - `AuthenticatedContent` - Main authenticated user interface
-- `SpotifyListeningData` - Music analysis and artist display
-- `BookRecommendations` - Book recommendation results
-- `BookChat` - Interactive chat interface
 - `ClientWrapper` - Hydration-safe client component
+- `ClientHome` - Main home page component
 
 ### AI Workflow
 
@@ -243,6 +236,14 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 📬 Contact
 
 - **Developer**: Lauren Pena
+- **Repository**: [https://github.com/lbullen21/bookify](https://github.com/lbullen21/bookify)
+
+---
+
+**Made with ❤️ for music lovers and book enthusiasts**
+
+_Discover your next favorite book through the power of your music taste!_ 🎵📚
+
 - **Repository**: [https://github.com/lbullen21/bookify](https://github.com/lbullen21/bookify)
 
 ---
