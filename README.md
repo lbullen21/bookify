@@ -34,7 +34,7 @@ Bookify is an intelligent book recommendation platform that analyzes your Spotif
 
 ## 🚀 Live Demo
 
-Visit **[https://127.0.0.1:3000](https://127.0.0.1:3000)** (local HTTPS development)
+Visit **[https://bookify-taupe-sigma.vercel.app/](https://bookify-taupe-sigma.vercel.app/)**
 
 ## 🛠️ Technology Stack
 
@@ -76,6 +76,9 @@ NEXTAUTH_SECRET=your_nextauth_secret
 
 # OpenAI Configuration for AI recommendations
 OPENAI_API_KEY=your_openai_api_key
+
+# Google Books API Configuration
+GOOGLE_BOOKS_API_KEY=your_google_books_api_key
 
 # Development Environment
 NODE_ENV=development
@@ -239,9 +242,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 📬 Contact
 
-- **Developer**: Lauren Bullen
+- **Developer**: Lauren Pena
 - **Repository**: [https://github.com/lbullen21/bookify](https://github.com/lbullen21/bookify)
-- **Issues**: [GitHub Issues](https://github.com/lbullen21/bookify/issues)
 
 ---
 
