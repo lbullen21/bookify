@@ -7,23 +7,23 @@ import { useSession, signOut } from 'next-auth/react';
 import AuthenticatedContent from '@/src/AuthenticatedContent.component';
 
 export default function ClientWrapper() {
-  const [hydrated, setHydrated] = useState(false);
+  const [hydrated, setHydrated] = useState(
+    () => typeof window !== 'undefined' && document.readyState === 'complete'
+  );
   const { data: session } = useSession();
 
   useEffect(() => {
-    if (typeof window !== 'undefined' && document.readyState === 'complete') {
-      setHydrated(true);
-    } else {
-      const handleLoad = () => setHydrated(true);
-      window.addEventListener('load', handleLoad);
-      const timer = setTimeout(() => setHydrated(true), 100);
+    if (hydrated) return;
 
-      return () => {
-        window.removeEventListener('load', handleLoad);
-        clearTimeout(timer);
-      };
-    }
-  }, []);
+    const handleLoad = () => setHydrated(true);
+    window.addEventListener('load', handleLoad);
+    const timer = setTimeout(() => setHydrated(true), 100);
+
+    return () => {
+      window.removeEventListener('load', handleLoad);
+      clearTimeout(timer);
+    };
+  }, [hydrated]);
 
   if (!hydrated) return null;
 
