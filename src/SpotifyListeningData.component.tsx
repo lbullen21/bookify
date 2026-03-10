@@ -3,7 +3,7 @@
 import { useSession } from 'next-auth/react';
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
-import { SpotifyArtist, RecentlyPlayedTrack } from '@/lib/spotify';
+import { SpotifyArtist } from '@/lib/spotify';
 import BookRecommendations from './BookRecommendations.component';
 
 interface BookRecommendation {
@@ -27,7 +27,6 @@ interface RecommendationResponse {
 
 interface ListeningProfile {
   topArtists: SpotifyArtist[];
-  recentTracks: RecentlyPlayedTrack[];
   analysis: {
     averageEnergy: number;
     averageDanceability: number;
@@ -42,19 +41,13 @@ interface ListeningProfile {
     };
     topArtists: Record<string, number>;
   } | null;
-  timeRange: string;
   generatedAt: string;
 }
 
-interface Props {
-  timeRange?: 'short_term' | 'medium_term' | 'long_term';
-}
-
-export default function SpotifyListeningData({
-  timeRange = 'medium_term',
-}: Props) {
+export default function SpotifyListeningData() {
   const { data: session, status } = useSession();
   const [profile, setProfile] = useState<ListeningProfile | null>(null);
+  const [displayedArtists, setDisplayedArtists] = useState<SpotifyArtist[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [recommendations, setRecommendations] =
@@ -63,14 +56,6 @@ export default function SpotifyListeningData({
   const [recommendationsError, setRecommendationsError] = useState<
     string | null
   >(null);
-
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    const year = date.getFullYear();
-    return `${month}/${day}/${year}`;
-  };
 
   const formatNumber = (num: number) => {
     return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
@@ -111,53 +96,23 @@ export default function SpotifyListeningData({
     }
   };
 
-  const getTrackRecommendations = async (
-    track: RecentlyPlayedTrack['track']
-  ) => {
-    const primaryArtist = track.artists[0];
-    // Use full artist data from topArtists if available (has genres, images, etc.)
-    const knownArtist = profile?.topArtists.find(
-      a => a.id === primaryArtist.id
-    );
-    const artistForRecommendation: SpotifyArtist = knownArtist || {
-      id: primaryArtist.id,
-      name: primaryArtist.name,
-      genres: [],
-      images: [],
-      popularity: 0,
-      external_urls: { spotify: '' },
-      followers: { total: 0 },
-    };
-
-    await getBookRecommendations(artistForRecommendation);
-  };
-
   const handleArtistClick = (e: React.MouseEvent, artist: SpotifyArtist) => {
     e.preventDefault();
     getBookRecommendations(artist);
   };
 
-  const handleTrackClick = (
-    e: React.MouseEvent,
-    track: RecentlyPlayedTrack['track']
-  ) => {
-    e.preventDefault();
-    e.stopPropagation();
-    getTrackRecommendations(track);
+  const shuffleArtists = () => {
+    if (!profile) return;
+    const shuffled = [...profile.topArtists].sort(() => Math.random() - 0.5);
+    setDisplayedArtists(shuffled.slice(0, 10));
   };
 
-  const timeRangeLabels = {
-    medium_term: 'Last 6 Months',
-  };
-
-  const fetchListeningProfile = async (range: string) => {
+  const fetchListeningProfile = async () => {
     setLoading(true);
     setError(null);
 
     try {
-      const response = await fetch(
-        `/api/spotify/listening-profile?timeRange=${range}`
-      );
+      const response = await fetch('/api/spotify/listening-profile');
 
       if (response.status === 401) {
         const errorData = await response.json();
@@ -176,8 +131,9 @@ export default function SpotifyListeningData({
         throw new Error('Failed to fetch listening data');
       }
 
-      const data = await response.json();
+      const data: ListeningProfile = await response.json();
       setProfile(data);
+      setDisplayedArtists(data.topArtists.slice(0, 10));
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
       console.error('Error fetching listening profile:', err);
@@ -188,14 +144,14 @@ export default function SpotifyListeningData({
 
   useEffect(() => {
     if (session) {
-      fetchListeningProfile(timeRange);
+      fetchListeningProfile();
     }
-  }, [session, timeRange]);
+  }, [session]);
 
   if (status === 'loading' || loading) {
     return (
       <div className="space-y-4">
-        {[...Array(3)].map((_, i) => (
+        {[...Array(2)].map((_, i) => (
           <div
             key={i}
             className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden"
@@ -253,7 +209,7 @@ export default function SpotifyListeningData({
             </button>
           )}
           <button
-            onClick={() => fetchListeningProfile(timeRange)}
+            onClick={fetchListeningProfile}
             className="text-sm px-3 py-1.5 bg-slate-900 hover:bg-slate-700 text-white rounded-md transition-colors font-medium"
           >
             Try again
@@ -266,36 +222,18 @@ export default function SpotifyListeningData({
   if (!session || !profile) {
     return null;
   }
-  console.log('Listening Profile:', profile);
 
   return (
     <div className="space-y-4">
       {/* Music Profile */}
       <section className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
-        <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
-          <div>
-            <p className="text-xs font-medium text-slate-400 uppercase tracking-wider">
-              Overview
-            </p>
-            <h2 className="text-base font-semibold text-slate-900 mt-0.5">
-              Music Profile
-            </h2>
-          </div>
-          <div className="flex gap-1.5">
-            {Object.entries(timeRangeLabels).map(([range, label]) => (
-              <button
-                key={range}
-                onClick={() => fetchListeningProfile(range)}
-                className={`text-xs px-2.5 py-1 rounded-md font-medium transition-colors ${
-                  timeRange === range
-                    ? 'bg-slate-900 text-white'
-                    : 'bg-slate-100 text-slate-500 hover:bg-slate-200'
-                }`}
-              >
-                {label}
-              </button>
-            ))}
-          </div>
+        <div className="px-6 py-4 border-b border-slate-100">
+          <p className="text-xs font-medium text-slate-400 uppercase tracking-wider">
+            Overview
+          </p>
+          <h2 className="text-base font-semibold text-slate-900 mt-0.5">
+            Music Profile
+          </h2>
         </div>
 
         {profile.analysis && (
@@ -326,18 +264,34 @@ export default function SpotifyListeningData({
         <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
           <div>
             <p className="text-xs font-medium text-slate-400 uppercase tracking-wider">
-              Listening
+              All Time
             </p>
             <h2 className="text-base font-semibold text-slate-900 mt-0.5">
               Top Artists
             </h2>
           </div>
-          <span className="text-xs text-slate-400">
-            Click any artist for book picks
-          </span>
+          <button
+            onClick={shuffleArtists}
+            className="inline-flex items-center gap-1.5 text-xs px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-md font-medium transition-colors"
+          >
+            <svg
+              className="w-3.5 h-3.5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              strokeWidth={2}
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99"
+              />
+            </svg>
+            Shuffle
+          </button>
         </div>
         <div className="divide-y divide-slate-50">
-          {profile.topArtists.map((artist, index) => (
+          {displayedArtists.map((artist, index) => (
             <button
               key={artist.id}
               onClick={e => handleArtistClick(e, artist)}
@@ -374,67 +328,6 @@ export default function SpotifyListeningData({
                 </p>
               </div>
             </button>
-          ))}
-        </div>
-      </section>
-
-      {/* Recently Played */}
-      <section className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
-        <div className="px-6 py-4 border-b border-slate-100">
-          <p className="text-xs font-medium text-slate-400 uppercase tracking-wider">
-            History
-          </p>
-          <h2 className="text-base font-semibold text-slate-900 mt-0.5">
-            Recently Played
-          </h2>
-        </div>
-        <div className="divide-y divide-slate-50">
-          {profile.recentTracks.slice(0, 5).map(item => (
-            <div
-              key={`${item.track.id}-${item.played_at}`}
-              className="flex items-center gap-4 px-6 py-3.5"
-            >
-              {item.track.album.images[0] && (
-                <Image
-                  src={item.track.album.images[0].url}
-                  alt={item.track.album.name}
-                  width={40}
-                  height={40}
-                  className="rounded object-cover shrink-0"
-                />
-              )}
-              <div className="flex-1 min-w-0">
-                <button
-                  onClick={e => handleTrackClick(e, item.track)}
-                  className="text-left w-full group"
-                  title={`Get book recommendations for ${item.track.artists[0].name}`}
-                >
-                  <p className="text-sm font-medium text-slate-900 truncate group-hover:text-indigo-600 transition-colors">
-                    {item.track.name}
-                  </p>
-                  <p className="text-xs text-slate-400 truncate mt-0.5">
-                    {item.track.artists.map(a => a.name).join(', ')}
-                    <span className="text-indigo-400 opacity-0 group-hover:opacity-100 transition-opacity ml-1">
-                      → book recs
-                    </span>
-                  </p>
-                </button>
-              </div>
-              <div className="text-right shrink-0 space-y-0.5">
-                <p className="text-xs text-slate-400">
-                  {formatDate(item.played_at)}
-                </p>
-                <a
-                  href={item.track.external_urls.spotify}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-xs text-[#1DB954] hover:underline block"
-                  onClick={e => e.stopPropagation()}
-                >
-                  Spotify
-                </a>
-              </div>
-            </div>
           ))}
         </div>
       </section>

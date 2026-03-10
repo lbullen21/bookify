@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { createSpotifyAPI, SpotifyArtist } from '@/lib/spotify';
@@ -72,19 +72,12 @@ function deriveAnalysisFromArtists(topArtists: SpotifyArtist[]) {
   };
 }
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   const session = await getServerSession(authOptions);
 
   if (!session) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
-
-  const { searchParams } = new URL(request.url);
-  const timeRange =
-    (searchParams.get('timeRange') as
-      | 'short_term'
-      | 'medium_term'
-      | 'long_term') || 'medium_term';
 
   try {
     const spotifyAPI = createSpotifyAPI(session);
@@ -99,10 +92,8 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const [topArtists, recentlyPlayed] = await Promise.all([
-      spotifyAPI.getTopArtists(timeRange, 10),
-      spotifyAPI.getRecentlyPlayed(10),
-    ]);
+    // Always fetch all-time top 50 so the client can shuffle into groups of 10
+    const topArtists = await spotifyAPI.getTopArtists('long_term', 50);
 
     const artists = topArtists || [];
     const analysis =
@@ -110,9 +101,7 @@ export async function GET(request: NextRequest) {
 
     const profile = {
       topArtists: artists,
-      recentTracks: recentlyPlayed || [],
       analysis,
-      timeRange,
       generatedAt: new Date().toISOString(),
     };
 

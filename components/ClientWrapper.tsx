@@ -1,31 +1,10 @@
-// Note: This file may have unsaved changes - check your editor for unsaved indicators
-
 'use client';
 
-import { useEffect, useState } from 'react';
 import { useSession, signOut } from 'next-auth/react';
 import AuthenticatedContent from '@/src/AuthenticatedContent.component';
 
 export default function ClientWrapper() {
-  const [hydrated, setHydrated] = useState(
-    () => typeof window !== 'undefined' && document.readyState === 'complete'
-  );
   const { data: session } = useSession();
-
-  useEffect(() => {
-    if (hydrated) return;
-
-    const handleLoad = () => setHydrated(true);
-    window.addEventListener('load', handleLoad);
-    const timer = setTimeout(() => setHydrated(true), 100);
-
-    return () => {
-      window.removeEventListener('load', handleLoad);
-      clearTimeout(timer);
-    };
-  }, [hydrated]);
-
-  if (!hydrated) return null;
 
   return (
     <div className="min-h-screen bg-slate-50">
